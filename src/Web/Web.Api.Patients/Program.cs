@@ -1,3 +1,7 @@
+using Application.Manager;
+using Application.Repository;
+using Infrastructure.DataAccess;
+using Infrastructure.ServiceManager;
 using NLog;
 using NLog.Web;
 
@@ -21,6 +25,10 @@ try
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();
     builder.Host.UseNLog();
+
+    // Add Dependency INjection Mappings
+    builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+    builder.Services.AddScoped<IPatientManager, PatientManager>();
 
     var app = builder.Build();
 
