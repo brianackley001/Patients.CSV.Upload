@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NLog;
 using Application.Manager;
+using Application.DTO;
 using System.Web.Http;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
+using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
 namespace Web.Api.Patients.Controllers;
 
@@ -46,4 +49,20 @@ public class PatientController : ControllerBase
         //})
         //.ToArray();
     }
+
+    [HttpPost(Name = "UpsertPatient")]
+    public async Task<IActionResult> Post([FromBody] PatientDTO patient)
+    {
+        try
+        {
+            var upsertResult = await _patientManager.UpsertPatient(patient).ConfigureAwait(true);
+            return Ok(upsertResult);
+        }
+        catch (Exception ex)
+        {
+            // Log Exception
+            _logger.Error(ex, "Error upserting Patient.");
+            return StatusCode(500);
+        }
+    }   
 }

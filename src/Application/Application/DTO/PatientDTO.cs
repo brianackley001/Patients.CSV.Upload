@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using System.Text.Json.Serialization;
+using Domain.Models;
 
 namespace Application.DTO;
 public class PatientDTO
@@ -6,20 +7,25 @@ public class PatientDTO
     public PatientDTO(Patient patient)
     {
         // Allows for data mapping to decouple backend data entities from front end models
-        Id = patient.Id;
+        Id = patient.PatientId;
         FirstName = patient.FirstName;
         LastName = patient.LastName;
         GenderDescription = patient.GenderDescription;
-        DateOfBirth = patient.DateOfBirth;
-        CreatedDate = patient.CreatedDate;
-        UpdatedDate = patient.UpdatedDate;
+        BirthDate = patient.BirthDate;
+        DateCreated = patient.DateCreated;
+        DateUpdated = patient.DateUpdated;
+    }
+
+    [JsonConstructor]
+    public PatientDTO()
+    {
     }
 
     public int Id { get; set; }
     public string FirstName { get; set; } = default!;
     public string LastName { get; set; } = default!;
     public string GenderDescription { get; set; } = default!;
-    public DateTime? DateOfBirth { get; set; }
-    public DateTime? CreatedDate { get; set; }
-    public DateTime? UpdatedDate { get; set; }
+    public DateTime? BirthDate { get; set; }
+    public DateTime? DateCreated { get; set; }
+    public DateTime? DateUpdated { get; set; }
 }
