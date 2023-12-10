@@ -38,16 +38,6 @@ public class PatientController : ControllerBase
             _logger.Error(ex, "Error retrieving Patients.");
             return StatusCode(500);
         }
-        //var ex = new Exception("Test Exception");
-        //_logger.Error(ex);
-
-        //return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        //{
-        //    Date = DateTime.Now.AddDays(index),
-        //    TemperatureC = Random.Shared.Next(-20, 55),
-        //    //Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        //})
-        //.ToArray();
     }
 
     [HttpPost(Name = "UpsertPatient")]

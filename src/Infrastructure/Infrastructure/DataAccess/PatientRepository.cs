@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using Dapper;
 using NLog;
+using Application.DTO;
 
 namespace Infrastructure.DataAccess;
 public class PatientRepository : IPatientRepository
@@ -72,9 +73,47 @@ public class PatientRepository : IPatientRepository
         return pagedCollection;
     }
 
-    public async Task<bool> ImportPatients(List<Patient> patients)
+    public async Task<bool> ImportPatients(List<PatientUploadTvpDTO> patients)
     {
-        throw new NotImplementedException();
+        var result = 0;
+        var returnValue = -1;
+
+        await Task.Run(() =>
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                try
+                {
+
+                    var dt = new DataTable("Patients");
+                    dt.Columns.Add("firstName", typeof(string));
+                    dt.Columns.Add("lastName", typeof(string));
+                    dt.Columns.Add("birthDate", typeof(DateTime));
+                    dt.Columns.Add("genderDescription", typeof(string));
+                    foreach (PatientUploadTvpDTO item in patients)
+                    {
+                        dt.Rows.Add(item.FirstName, item.LastName, item.BirthDate, item.GenderDescription);
+                    }
+
+                    connection.Open();
+                    var parameter = new DynamicParameters();
+                    parameter.Add("@TVP", dt.AsTableValuedParameter("dbo.PatientTVP"));
+                    parameter.Add("@returnValue", returnValue, DbType.Int32, ParameterDirection.ReturnValue);
+
+                    result = connection
+                        .Execute("usp_UpsertPatients", parameter, commandType: CommandType.StoredProcedure);
+                    returnValue = parameter.Get<int>("@returnValue");
+                }
+                catch (Exception ex)
+                {
+                    // Log Exception
+                    _logger.Error(ex, "Error upserting patient list upload");
+                    throw;
+                }
+            }
+        }).ConfigureAwait(true);
+
+        return returnValue >= 0;
     }
 
     public async Task<Patient> UpsertPatient(Patient patient)

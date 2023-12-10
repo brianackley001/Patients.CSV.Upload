@@ -6,5 +6,5 @@ public interface IPatientManager
 {
     Task<PatientsDTO> GetPatients(int pageNumber, int pageSize); 
     Task<PatientDTO> UpsertPatient(PatientDTO patient);
-    Task<bool> ImportPatients(List<Patient> patients);
+    Task<bool> ImportPatients(List<PatientUploadTvpDTO> patients);
 }

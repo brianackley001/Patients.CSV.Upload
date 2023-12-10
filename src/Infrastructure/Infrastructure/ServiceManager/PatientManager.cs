@@ -34,9 +34,18 @@ public class PatientManager : IPatientManager
         }
     }
 
-    public Task<bool> ImportPatients(List<Patient> patients)
+    public Task<bool> ImportPatients(List<PatientUploadTvpDTO> patients)
     {
-        throw new NotImplementedException();
+        // No business logic converstions needed here between Web Layer DTO & Domain models - 
+        try
+        {
+            return _patientRepository.ImportPatients(patients);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error in ImportPatients");
+            throw;
+        }
     }
 
     public async Task<PatientDTO> UpsertPatient(PatientDTO patientDTO)
