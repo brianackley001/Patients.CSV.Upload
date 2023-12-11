@@ -26,7 +26,7 @@ try
     builder.Logging.ClearProviders();
     builder.Host.UseNLog();
 
-    // Add Dependency INjection Mappings
+    // Add Dependency Injection Mappings
     builder.Services.AddScoped<IPatientRepository, PatientRepository>();
     builder.Services.AddScoped<IPatientManager, PatientManager>();
 

@@ -9,9 +9,9 @@ public class PatientUploadTvpDTO
     {
     }
 
-    public string FirstName { get; set; } = default!;
-    public string LastName { get; set; } = default!;
-    public string GenderDescription { get; set; } = default!;
+    public string FirstName { get; set; } = "Unknown";
+    public string LastName { get; set; } = "Unknown";
+    public string GenderDescription { get; set; } = "Unknown";
     public DateTime BirthDate { get; set; }
 
 }
