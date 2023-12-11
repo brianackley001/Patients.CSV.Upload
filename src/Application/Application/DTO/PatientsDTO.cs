@@ -4,6 +4,8 @@ using Domain.Models;
 namespace Application.DTO;
 public class PatientsDTO
 {
+    private PagedCollection<List<Patient>> _patients;
+
     public PatientsDTO(List<Patient>? patients, int pageNumber, int pageSize, int collectionTotal)
     {
         // Allows for data mapping to decouple backend data entities from front end models
@@ -16,6 +18,11 @@ public class PatientsDTO
     [JsonConstructor]
     public PatientsDTO()
     {
+    }
+
+    public PatientsDTO(PagedCollection<List<Patient>> patients)
+    {
+        _patients = patients;
     }
 
     public List<Patient>? Patients { get; set; }

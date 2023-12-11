@@ -1,3 +1,4 @@
+using Application.DTO;
 using Application.Manager;
 using Application.Repository;
 using Infrastructure.DataAccess;
@@ -29,6 +30,7 @@ try
     // Add Dependency Injection Mappings
     builder.Services.AddScoped<IPatientRepository, PatientRepository>();
     builder.Services.AddScoped<IPatientManager, PatientManager>();
+    builder.Services.AddScoped <IConvertDTO, ConvertDTO>();
 
     var app = builder.Build();
 

@@ -8,10 +8,12 @@ namespace Infrastructure.ServiceManager;
 public class PatientManager : IPatientManager
 {
     private readonly IPatientRepository _patientRepository;
+    private readonly IConvertDTO _convertDTO;
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-    public PatientManager(IPatientRepository patientRepository)
+    public PatientManager(IPatientRepository patientRepository, IConvertDTO convertDTO)
     {
         _patientRepository = patientRepository;
+        _convertDTO = convertDTO;
     }
 
     public async Task<PatientsDTO> GetPatients(int pageNumber, int pageSize)
@@ -36,7 +38,7 @@ public class PatientManager : IPatientManager
 
     public Task<bool> ImportPatients(List<PatientUploadTvpDTO> patients)
     {
-        // No business logic converstions needed here between Web Layer DTO & Domain models - 
+        // No business logic conversions needed here between Web Layer DTO & Domain models - 
         try
         {
             return _patientRepository.ImportPatients(patients);
@@ -66,11 +68,12 @@ public class PatientManager : IPatientManager
             var upsertResult = await _patientRepository.UpsertPatient(patient);
 
             //convert domain model back to DTO for Web Layer
-            return new PatientDTO(patient);
+            var dto = await _convertDTO.ConvertToPatientDTO(patient);
+            return dto;
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Error in GetPatients");
+            _logger.Error(ex, "Error in UpsertPatient");
             throw;
         }
     }
