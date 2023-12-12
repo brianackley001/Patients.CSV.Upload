@@ -11,19 +11,19 @@
 </nav>
 <div class="container">
 
+  <ngbd-table-complete></ngbd-table-complete>
 
-
-  <div *ngIf="patients.length === 0; else showItems">
+  <!-- <div *ngIf="patients.length === 0; else showItems">
     There are no patients to display.
-  </div>
+  </div> -->
 
-  <ng-template #showItems>
+  <!-- <ng-template #showItems > 
     <ul class="wish-list">
       <li *ngFor="let item of patients; index as ii">
-        {{item.lastName}}, {{item.firstName}}  
+        <ngbd-table-complete></ngbd-table-complete> 
       </li>
     </ul>
-  </ng-template>
+  </ng-template> -->
 
   
 </div>
