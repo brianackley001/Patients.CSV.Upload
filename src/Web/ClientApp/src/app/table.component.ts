@@ -14,6 +14,7 @@ import { MmDdYYYYDatePipe } from './mm--dd-yyyy-date.pipe';
 	standalone: true,
 	imports: [DecimalPipe, FormsModule, AsyncPipe, NgbHighlight, NgbdSortableHeader, NgbPaginationModule, MmDdYYYYDatePipe],
 	templateUrl: './table.component.html',
+	styleUrls: ['./table.component.css'],
 	providers: [PatientService, DecimalPipe],
 })
 export class NgbdTableComplete {

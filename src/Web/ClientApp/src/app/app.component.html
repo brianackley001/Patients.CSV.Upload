@@ -1,29 +1,16 @@
-<nav class="navbar bg-primary navbar-expand"data-bs-theme="dark">
+<nav class="navbar bg-primary navbar-expand" data-bs-theme="dark">
   <div class="container-fluid">
     <span class="navbar-brand"><i class="fa-regular fa-chart-bar" style="margin-right:8px;"></i>Patients</span>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-      <form class="d-flex" role="search">
-        <button class="btn btn-light btn-sm" type="submit"><i class="fa-regular fa-file-lines" style="margin-right:5px;"></i>Upload List</button>
-      </form>
+    <form class="d-flex" role="search">
+      <button class="btn btn-light btn-sm" type="submit"><i class="fa-regular fa-file-lines"
+          style="margin-right:5px;"></i>Upload List</button>
+    </form>
   </div>
 </nav>
 <div class="container">
-
   <ngbd-table-complete></ngbd-table-complete>
-
-  <!-- <div *ngIf="patients.length === 0; else showItems">
-    There are no patients to display.
-  </div> -->
-
-  <!-- <ng-template #showItems > 
-    <ul class="wish-list">
-      <li *ngFor="let item of patients; index as ii">
-        <ngbd-table-complete></ngbd-table-complete> 
-      </li>
-    </ul>
-  </ng-template> -->
-
-  
 </div>

@@ -38,7 +38,7 @@ function sort(patients: Patient[], column: SortColumn, direction: string): Patie
 function matches(patient: Patient, term: string, pipe: PipeTransform) {
 	return (
 		patient.firstName.toLowerCase().includes(term.toLowerCase()) ||
-		pipe.transform(patient.lastName).includes(term) 
+		pipe.transform(patient.lastName.toLowerCase()).includes(term.toLowerCase()) 
 	);
 }
 
@@ -121,7 +121,7 @@ export class PatientService {
 		let patients = sort(PATIENTS, sortColumn, sortDirection);
 
 		// 2. filter
-		patients = patients.filter((country) => matches(country, searchTerm, this.pipe));
+		patients = patients.filter((patient) => matches(patient, searchTerm, this.pipe));
 		const total = patients.length;
 
 		// 3. paginate

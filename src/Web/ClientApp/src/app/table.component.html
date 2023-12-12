@@ -10,10 +10,11 @@
 				name="searchTerm"
 				[(ngModel)]="service.searchTerm"
 			/>
+			<!-- @if (service.loading$ | async) {
+				<span class="col col-form-label"><i class="fa-solid fa-spinner"></i>Loading...</span>
+			} -->
 		</div>
-		@if (service.loading$ | async) {
-			<span class="col col-form-label"><i class="fa-solid fa-spinner"></i>Loading...</span>
-		}
+		
 	</div>
 
 	<table class="table table-striped">
