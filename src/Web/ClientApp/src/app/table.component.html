@@ -1,34 +1,41 @@
+<div *ngIf="!hasItems; else showItems">
+	<div class="card" style="width: 28rem; margin-top: 45px;">
+		<div class="card-header bg-info-subtle">
+			<h1>No patients to display</h1>
+		</div>
+		<div class="card-body">
+			<p class="card-text">Please use the <i><b>"Upload List" </b></i> button above to import patients into the system..</p>
+		</div>
+	</div>
+</div>
 
-<form>
-	<div class="mb-3 row">
-		<label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Filter by name:</label>
-		<div class="col-xs-3 col-sm-auto">
-			<input
-				id="table-complete-search"
-				type="text"
-				class="form-control"
-				name="searchTerm"
-				[(ngModel)]="service.searchTerm"
-			/>
-			<!-- @if (service.loading$ | async) {
+<ng-template #showItems>
+	<br />
+	<form>
+		<div class="mb-3 row">
+			<label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Filter by name:</label>
+			<div class="col-xs-3 col-sm-auto">
+				<input id="table-complete-search" type="text" class="form-control" name="searchTerm"
+					[(ngModel)]="service.searchTerm" />
+				<!-- @if (service.loading$ | async) {
 				<span class="col col-form-label"><i class="fa-solid fa-spinner"></i>Loading...</span>
 			} -->
-		</div>
-		
-	</div>
+			</div>
 
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th scope="col">Edit</th>
-				<th scope="col" sortable="firstName" (sort)="onSort($event)">First Name</th>
-				<th scope="col" sortable="lastName" (sort)="onSort($event)">Last Name</th>
-				<th scope="col">Birth Date</th>
-				<th scope="col">Gender</th>
-			</tr>
-		</thead>
-		<tbody>
-			@for (patient of patients$ | async; track patient.id) {
+		</div>
+
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th scope="col">Edit</th>
+					<th scope="col" sortable="firstName" (sort)="onSort($event)">First Name</th>
+					<th scope="col" sortable="lastName" (sort)="onSort($event)">Last Name</th>
+					<th scope="col">Birth Date</th>
+					<th scope="col">Gender</th>
+				</tr>
+			</thead>
+			<tbody>
+				@for (patient of patients$ | async; track patient.id) {
 				<tr>
 					<td><i class="fa-regular fa-address-card"></i></td>
 					<td>
@@ -38,22 +45,23 @@
 					<td>{{patient.birthDate | mmDdYYYYDate}}</td>
 					<td>{{patient.genderDescription}}</td>
 				</tr>
-			} @empty {
+				} @empty {
 				<tr>
 					<td colspan="4" style="text-align: center">No patients found</td>
 				</tr>
-			}
-		</tbody>
-	</table>
+				}
+			</tbody>
+		</table>
 
-	<div class="d-flex justify-content-between p-2">
-		<ngb-pagination [collectionSize]="(total$ | async)!" [(page)]="service.page" [pageSize]="service.pageSize">
-		</ngb-pagination>
+		<div class="d-flex justify-content-between p-2">
+			<ngb-pagination [collectionSize]="(total$ | async)!" [(page)]="service.page" [pageSize]="service.pageSize">
+			</ngb-pagination>
 
-		<select class="form-select" style="width: auto" name="pageSize" [(ngModel)]="service.pageSize">
-			<option [ngValue]="2">2 items per page</option>
-			<option [ngValue]="4">4 items per page</option>
-			<option [ngValue]="6">6 items per page</option>
-		</select>
-	</div>
-</form>
+			<select class="form-select" style="width: auto" name="pageSize" [(ngModel)]="service.pageSize">
+				<option [ngValue]="2">2 items per page</option>
+				<option [ngValue]="4">4 items per page</option>
+				<option [ngValue]="6">6 items per page</option>
+			</select>
+		</div>
+	</form>
+</ng-template>
