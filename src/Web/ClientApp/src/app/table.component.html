@@ -37,7 +37,7 @@
 			<tbody>
 				@for (patient of patients$ | async; track patient.id) {
 				<tr>
-					<td><i class="fa-regular fa-address-card"></i></td>
+					<td><i class="fa-regular fa-address-card" (click)="onClickTestApi(patient)"></i></td>
 					<td>
 						<ngb-highlight [result]="patient.firstName" [term]="service.searchTerm" />
 					</td>

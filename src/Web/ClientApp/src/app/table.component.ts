@@ -7,6 +7,7 @@ import { NgbHighlight, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { Patient } from './dataModels/patient';
 import { PatientService } from './services/patient.service';
+import { PatientApiService } from './services/patient-api.service';	
 import { NgbdSortableHeader, SortEvent } from './directives/sortable.directive';
 import { MmDdYYYYDatePipe } from './mm--dd-yyyy-date.pipe';
 
@@ -17,7 +18,7 @@ import { MmDdYYYYDatePipe } from './mm--dd-yyyy-date.pipe';
 		NgbdSortableHeader, NgbPaginationModule, MmDdYYYYDatePipe, CommonModule],
 	templateUrl: './table.component.html',
 	styleUrls: ['./table.component.css'],
-	providers: [PatientService, DecimalPipe],
+	providers: [PatientService, DecimalPipe, PatientApiService],
 })
 export class NgbdTableComplete {
 	patients$: Observable<Patient[]>;
@@ -25,8 +26,10 @@ export class NgbdTableComplete {
 	@ViewChildren(NgbdSortableHeader)
 	headers!: QueryList<NgbdSortableHeader>;
 	hasItems: boolean = false;
+	PatientApiService: any;
 
-	constructor(public service: PatientService) {
+
+	constructor(public service: PatientService, private patientApiService: PatientApiService) {
 		this.patients$ = service.patients$;
 		this.total$ = service.total$;
 		this.total$.subscribe(val => {this.hasItems = val > 0});
@@ -42,5 +45,11 @@ export class NgbdTableComplete {
 
 		this.service.sortColumn = column;
 		this.service.sortDirection = direction;
+	}
+	onClickTestApi(patient: Patient) {
+		console.log(patient);
+		this.patientApiService.getPatients().then((response:any) => {
+			console.log(response.data);
+		});
 	}
 }
