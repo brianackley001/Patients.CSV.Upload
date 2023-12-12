@@ -25,11 +25,11 @@ public class PatientController : ControllerBase
     }
 
     [HttpGet(Name = "GetPatients") ]
-    public async Task<IActionResult> Get([FromUri] int pageNumber, [FromUri] int pageSize)
+    public async Task<IActionResult> Get([FromUri] int pageNumber, [FromUri] int pageSize, [FromUri] string searchTerm)
     {
         try
         {
-            var patients = await _patientManager.GetPatients(pageNumber, pageSize).ConfigureAwait(true);
+            var patients = await _patientManager.GetPatients(pageNumber, pageSize, searchTerm).ConfigureAwait(true);
             return Ok(patients);
         }
         catch (Exception ex)

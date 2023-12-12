@@ -16,11 +16,11 @@ public class PatientManager : IPatientManager
         _convertDTO = convertDTO;
     }
 
-    public async Task<PatientsDTO> GetPatients(int pageNumber, int pageSize)
+    public async Task<PatientsDTO> GetPatients(int pageNumber, int pageSize, string searchTerm)
     {
         try
         {
-            var patientsCollection = await _patientRepository.GetPatients(pageNumber, pageSize);
+            var patientsCollection = await _patientRepository.GetPatients(pageNumber, pageSize, searchTerm);
             var patientsDto = new PatientsDTO(
                 patientsCollection.Collection, 
                 patientsCollection.PageNumber, 

@@ -19,7 +19,7 @@ public class PatientRepository : IPatientRepository
         _connectionString = configuration.GetConnectionString("Patients_ConnectionString");
     }
 
-    public async Task<PagedCollection<List<Patient>>> GetPatients(int pageNumber, int pageSize)
+    public async Task<PagedCollection<List<Patient>>> GetPatients(int pageNumber, int pageSize, string searchTerm)
     {
         var collectionTotal = 0;
         var patientCollection = new List<Patient>();
@@ -33,37 +33,36 @@ public class PatientRepository : IPatientRepository
 
         await Task.Run(() =>
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using SqlConnection connection = new(_connectionString);
+            try
             {
-                try
+                connection.Open();
+                var parameter = new DynamicParameters();
+                if (pageNumber > 0)
                 {
-                    connection.Open();
-                    var parameter = new DynamicParameters();
-                    if (pageNumber > 0)
-                    {
-                        //Nullable stored procedure parameter. Specify Business Logic for default value(s) in the Domain or Application layer,
-                        //fall back to safety net of sproc default value(s) if necessary.
-                        parameter.Add("@pageNum", pageNumber, DbType.Int32, ParameterDirection.Input);
-                    }
-                    if (pageSize > 0)
-                    {
-                        //Nullable stored procedure parameter. Specify Business Logic for default value(s) in the Domain or Application layer,
-                        //fall back to safety net of sproc default value(s) if necessary.
-                        parameter.Add("@pageSize", pageSize, DbType.Int32, ParameterDirection.Input);
-                    }
-                    parameter.Add("@collectionTotal", 0, DbType.Int32, ParameterDirection.Output);
-
-                    patientCollection = connection
-                        .Query<Patient>("usp_GetPatients", parameter, commandType: CommandType.StoredProcedure).ToList();
-
-                    collectionTotal = parameter.Get<int>("@collectionTotal");
+                    //Nullable stored procedure parameter. Specify Business Logic for default value(s) in the Domain or Application layer,
+                    //fall back to safety net of sproc default value(s) if necessary.
+                    parameter.Add("@pageNum", pageNumber, DbType.Int32, ParameterDirection.Input);
                 }
-                catch (Exception ex)
+                if (pageSize > 0)
                 {
-                    // Log Exception
-                    _logger.Error(ex, "Error retrieving patients");
-                    throw;
+                    //Nullable stored procedure parameter. Specify Business Logic for default value(s) in the Domain or Application layer,
+                    //fall back to safety net of sproc default value(s) if necessary.
+                    parameter.Add("@pageSize", pageSize, DbType.Int32, ParameterDirection.Input);
                 }
+                parameter.Add("@searchTerm", searchTerm, DbType.String, ParameterDirection.Input);
+                parameter.Add("@collectionTotal", 0, DbType.Int32, ParameterDirection.Output);
+
+                patientCollection = connection
+                    .Query<Patient>("usp_GetPatients", parameter, commandType: CommandType.StoredProcedure).ToList();
+
+                collectionTotal = parameter.Get<int>("@collectionTotal");
+            }
+            catch (Exception ex)
+            {
+                // Log Exception
+                _logger.Error(ex, "Error retrieving patients");
+                throw;
             }
         }).ConfigureAwait(true);
 
@@ -80,36 +79,34 @@ public class PatientRepository : IPatientRepository
 
         await Task.Run(() =>
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using SqlConnection connection = new(_connectionString);
+            try
             {
-                try
+
+                var dt = new DataTable("Patients");
+                dt.Columns.Add("firstName", typeof(string));
+                dt.Columns.Add("lastName", typeof(string));
+                dt.Columns.Add("birthDate", typeof(DateTime));
+                dt.Columns.Add("genderDescription", typeof(string));
+                foreach (PatientUploadTvpDTO item in patients)
                 {
-
-                    var dt = new DataTable("Patients");
-                    dt.Columns.Add("firstName", typeof(string));
-                    dt.Columns.Add("lastName", typeof(string));
-                    dt.Columns.Add("birthDate", typeof(DateTime));
-                    dt.Columns.Add("genderDescription", typeof(string));
-                    foreach (PatientUploadTvpDTO item in patients)
-                    {
-                        dt.Rows.Add(item.FirstName, item.LastName, item.BirthDate, item.GenderDescription);
-                    }
-
-                    connection.Open();
-                    var parameter = new DynamicParameters();
-                    parameter.Add("@TVP", dt.AsTableValuedParameter("dbo.PatientTVP"));
-                    parameter.Add("@returnValue", returnValue, DbType.Int32, ParameterDirection.ReturnValue);
-
-                    result = connection
-                        .Execute("usp_UpsertPatients", parameter, commandType: CommandType.StoredProcedure);
-                    returnValue = parameter.Get<int>("@returnValue");
+                    dt.Rows.Add(item.FirstName, item.LastName, item.BirthDate, item.GenderDescription);
                 }
-                catch (Exception ex)
-                {
-                    // Log Exception
-                    _logger.Error(ex, "Error upserting patient list upload");
-                    throw;
-                }
+
+                connection.Open();
+                var parameter = new DynamicParameters();
+                parameter.Add("@TVP", dt.AsTableValuedParameter("dbo.PatientTVP"));
+                parameter.Add("@returnValue", returnValue, DbType.Int32, ParameterDirection.ReturnValue);
+
+                result = connection
+                    .Execute("usp_UpsertPatients", parameter, commandType: CommandType.StoredProcedure);
+                returnValue = parameter.Get<int>("@returnValue");
+            }
+            catch (Exception ex)
+            {
+                // Log Exception
+                _logger.Error(ex, "Error upserting patient list upload");
+                throw;
             }
         }).ConfigureAwait(true);
 
@@ -123,34 +120,32 @@ public class PatientRepository : IPatientRepository
 
         await Task.Run(() =>
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using SqlConnection connection = new(_connectionString);
+            try
             {
-                try
+                connection.Open();
+                var parameter = new DynamicParameters();
+                if (patient.PatientId > 0)
                 {
-                    connection.Open();
-                    var parameter = new DynamicParameters();
-                    if (patient.PatientId > 0)
-                    {
-                        //Upsert:  Update with existing ID value, or Insert new patient record with IDENTITY value.
-                        parameter.Add("@id", patient.PatientId, DbType.Int32, ParameterDirection.Input);
-                    }
-                    parameter.Add("@firstName", patient.FirstName, DbType.String, ParameterDirection.Input);
-                    parameter.Add("@lastName", patient.LastName, DbType.String, ParameterDirection.Input);
-                    parameter.Add("@genderDescription", patient.GenderDescription, DbType.String, ParameterDirection.Input);
-                    parameter.Add("@birthDate", patient.BirthDate, DbType.DateTime, ParameterDirection.Input);
-                    parameter.Add("@isActive", patient.IsActive, DbType.Boolean, ParameterDirection.Input);
-                    parameter.Add("@returnValue", returnValue, DbType.Int32, ParameterDirection.ReturnValue);
+                    //Upsert:  Update with existing ID value, or Insert new patient record with IDENTITY value.
+                    parameter.Add("@id", patient.PatientId, DbType.Int32, ParameterDirection.Input);
+                }
+                parameter.Add("@firstName", patient.FirstName, DbType.String, ParameterDirection.Input);
+                parameter.Add("@lastName", patient.LastName, DbType.String, ParameterDirection.Input);
+                parameter.Add("@genderDescription", patient.GenderDescription, DbType.String, ParameterDirection.Input);
+                parameter.Add("@birthDate", patient.BirthDate, DbType.DateTime, ParameterDirection.Input);
+                parameter.Add("@isActive", patient.IsActive, DbType.Boolean, ParameterDirection.Input);
+                parameter.Add("@returnValue", returnValue, DbType.Int32, ParameterDirection.ReturnValue);
 
-                    result = connection
-                        .Execute("usp_UpsertPatient", parameter, commandType: CommandType.StoredProcedure);
-                    returnValue = parameter.Get<int>("@returnValue");
-                }
-                catch (Exception ex)
-                {
-                    // Log Exception
-                    _logger.Error(ex, "Error upserting patient");
-                    throw;
-                }
+                result = connection
+                    .Execute("usp_UpsertPatient", parameter, commandType: CommandType.StoredProcedure);
+                returnValue = parameter.Get<int>("@returnValue");
+            }
+            catch (Exception ex)
+            {
+                // Log Exception
+                _logger.Error(ex, "Error upserting patient");
+                throw;
             }
         }).ConfigureAwait(true);
 

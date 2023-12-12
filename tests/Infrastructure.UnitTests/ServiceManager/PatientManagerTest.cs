@@ -35,8 +35,7 @@ public class PatientManagerTest
             PageSize = 10,
             Patients = new List<Patient>
             {
-                new Patient
-                {
+                new() {
                     PatientId = 1,
                     FirstName = "Test",
                     LastName = "Test",
@@ -46,7 +45,7 @@ public class PatientManagerTest
                     GenderDescription = "Test",
                     IsActive = true
                 },
-                new Patient
+                new()
                 {
                     PatientId = 2,
                     FirstName = "Test",
@@ -66,7 +65,7 @@ public class PatientManagerTest
             PageSize = 10,
             Collection = new List<Patient>
             {
-                new Patient
+                new()
                 {
                     PatientId = 1,
                     FirstName = "Test",
@@ -77,7 +76,7 @@ public class PatientManagerTest
                     GenderDescription = "Test",
                     IsActive = true
                 },
-                new Patient
+                new()
                 {
                     PatientId = 2,
                     FirstName = "Test",
@@ -102,14 +101,14 @@ public class PatientManagerTest
         };
         _patientUploadTvpDTO = new List<PatientUploadTvpDTO>
         {
-            new PatientUploadTvpDTO
+            new()
             {
                 FirstName = "Test",
                 LastName = "Test",
                 BirthDate = _birthDateValue,
                 GenderDescription = "Test"
             },
-            new PatientUploadTvpDTO
+            new()
             {
                 FirstName = "Test",
                 LastName = "Test",
@@ -124,22 +123,28 @@ public class PatientManagerTest
     {
         // Arrange
         _patientRepository.Reset();
-        _patientRepository.Setup(r => r.GetPatients(1, 10)).Returns(Task.FromResult(_patientsCollection));
+        _patientRepository.Setup(r => r.GetPatients(1, 10, string.Empty)).Returns(Task.FromResult(_patientsCollection));
         var sut = new PatientManager(_patientRepository.Object, _convertDTO.Object);
 
         // Act
-        var response = await sut.GetPatients(1, 10);
+        var response = await sut.GetPatients(1, 10 , string.Empty);
 
         // Assert
         Assert.That(response, Is.Not.Null, "response != null");
-        Assert.That(response.Patients.GetType(), Is.EqualTo(typeof(List<Patient>)), "response.Result.Patients.GetType()");
-        Assert.That(response.GetType(), Is.EqualTo(typeof(PatientsDTO)), "response.Result.Patients.GetType()");
-        Assert.That(response.Patients.Count, Is.EqualTo(2), "response.Result.Patients.Count");
-        Assert.That(response.Patients[0].PatientId, Is.EqualTo(1), "response.Result.Patients[0].PatientId");
-        Assert.That(response.CollectionTotal, Is.EqualTo(_patientsDTO.CollectionTotal), "response.Result.CollectionTotal");
-        Assert.That(response.PageNumber, Is.EqualTo(_patientsDTO.PageNumber), "response.Result.PageNumber");
-        Assert.That(response.PageSize, Is.EqualTo(_patientsDTO.PageSize), "response.Result.PageSize");
-        _patientRepository.Verify(r => r.GetPatients(1, 10), Times.Once, "Expected method to be called once");
+        Assert.Multiple(() =>
+        {
+            Assert.That(response.Patients.GetType(), Is.EqualTo(typeof(List<Patient>)), "response.Result.Patients.GetType()");
+            Assert.That(response.GetType(), Is.EqualTo(typeof(PatientsDTO)), "response.Result.Patients.GetType()");
+            Assert.That(response.Patients, Has.Count.EqualTo(2), "response.Result.Patients.Count");
+        });
+        Assert.Multiple(() =>
+        {
+            Assert.That(response.Patients[0].PatientId, Is.EqualTo(1), "response.Result.Patients[0].PatientId");
+            Assert.That(response.CollectionTotal, Is.EqualTo(_patientsDTO.CollectionTotal), "response.Result.CollectionTotal");
+            Assert.That(response.PageNumber, Is.EqualTo(_patientsDTO.PageNumber), "response.Result.PageNumber");
+            Assert.That(response.PageSize, Is.EqualTo(_patientsDTO.PageSize), "response.Result.PageSize");
+        });
+        _patientRepository.Verify(r => r.GetPatients(1, 10, string.Empty), Times.Once, "Expected method to be called once");
     }
 
     [Test(Description = "GetPatients throws expected exception")]
@@ -147,16 +152,16 @@ public class PatientManagerTest
     {
         // Arrange
         _patientRepository.Reset();
-        _patientRepository.Setup(r => r.GetPatients(1, 10)).Throws(_expectedException!);
+        _patientRepository.Setup(r => r.GetPatients(1, 10, string.Empty)).Throws(_expectedException!);
         var sut = new PatientManager(_patientRepository.Object, _convertDTO.Object);
 
         // Act
         //var response = await sut.GetPatients(1, 10);
 
         // Assert
-        NullReferenceException? nullReferenceException = Assert.ThrowsAsync<NullReferenceException>(() => sut.GetPatients(1, 10));
+        NullReferenceException? nullReferenceException = Assert.ThrowsAsync<NullReferenceException>(() => sut.GetPatients(1, 10, string.Empty));
         Assert.That(nullReferenceException.Message, Is.EqualTo(_expectedException.Message));
-        _patientRepository.Verify(r => r.GetPatients(1, 10), Times.Once, "Expected method to be called once");
+        _patientRepository.Verify(r => r.GetPatients(1, 10, string.Empty), Times.Once, "Expected method to be called once");
     }
 
     [Test(Description = "UpsertPatient returns success")]
@@ -177,12 +182,15 @@ public class PatientManagerTest
 
         // Assert
         Assert.That(response, Is.Not.Null, "response != null");
-        Assert.That(response.GetType(), Is.EqualTo(typeof(PatientDTO)), "response.GetType()");
-        Assert.That(response.Id, Is.EqualTo(patientItem.PatientId), "response.Id");
-        Assert.That(response.FirstName, Is.EqualTo(patientItem.FirstName), "response.FirstName");
-        Assert.That(response.LastName, Is.EqualTo(patientItem.LastName), "response.LastName");
-        Assert.That(response.BirthDate, Is.EqualTo(patientItem.BirthDate), "response.BirthDate");
-        Assert.That(response.GenderDescription, Is.EqualTo(patientItem.GenderDescription), "response.BirthDate");
+        Assert.Multiple(() =>
+        {
+            Assert.That(response.GetType(), Is.EqualTo(typeof(PatientDTO)), "response.GetType()");
+            Assert.That(response.Id, Is.EqualTo(patientItem.PatientId), "response.Id");
+            Assert.That(response.FirstName, Is.EqualTo(patientItem.FirstName), "response.FirstName");
+            Assert.That(response.LastName, Is.EqualTo(patientItem.LastName), "response.LastName");
+            Assert.That(response.BirthDate, Is.EqualTo(patientItem.BirthDate), "response.BirthDate");
+            Assert.That(response.GenderDescription, Is.EqualTo(patientItem.GenderDescription), "response.BirthDate");
+        });
     }
 
 
@@ -234,10 +242,12 @@ public class PatientManagerTest
         // Act
         var response = await sut.ImportPatients(_patientUploadTvpDTO);
 
-        // Assert
-        Assert.That(response, Is.Not.Null, "response != null");
-        Assert.That(response.GetType(), Is.EqualTo(typeof(bool)), "response.GetType()");
-        Assert.That(response, Is.EqualTo(true), "response");
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(response.GetType(), Is.EqualTo(typeof(bool)), "response.GetType()");
+            Assert.That(response, Is.EqualTo(true), "response");
+        });
         _patientRepository.Verify(r => r.ImportPatients(_patientUploadTvpDTO), Times.Once, "Expected method to be called once");
     }
 }

@@ -22,16 +22,10 @@ try
     builder.Services.AddSwaggerGen();
 
     //CORS
-    var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-    builder.Services.AddCors(options =>
-    {
-        options.AddPolicy(name: MyAllowSpecificOrigins,
-                          policy =>
-                          {
-                              policy.WithOrigins("https://localhost:4200",
-                                                  "http://localhost:4200");
-                          });
-    });
+    var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+    builder.Services.AddCors(options => options.AddPolicy(name: myAllowSpecificOrigins,
+                          policy => policy.WithOrigins("https://localhost:4200",
+                                                  "http://localhost:4200")));
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();
@@ -51,7 +45,7 @@ try
         app.UseSwaggerUI();
     }
 
-    app.UseCors(MyAllowSpecificOrigins);
+    app.UseCors(myAllowSpecificOrigins);
 
 
     app.UseHttpsRedirection();

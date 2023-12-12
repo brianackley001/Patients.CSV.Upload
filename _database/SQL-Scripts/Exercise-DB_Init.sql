@@ -245,67 +245,132 @@ ALTER PROCEDURE [dbo].[usp_GetPatients]
 	@pageSize			INT = 10,
 	@sortBy				VARCHAR(50) = 'LastName',
 	@sortAsc			BIT = 1,
+	@searchTerm			VARCHAR(255) = '',
 	@collectionTotal	INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
 	DECLARE @pagedItemIds TABLE(id INT);
 
+	-- SEARCH TERM PRESENT
+	IF(@searchTerm IS NOT NULL AND @searchTerm != '')
+	BEGIN
 		--	Select Paged Collection of matching Items
-    INSERT  INTO @pagedItemIds
-            SELECT	p.[PatientId]
-            FROM	[dbo].[Patients] p
-            ORDER	BY 
-                    CASE
-                        WHEN	@sortAsc != 1 THEN ''
-                        WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
-                    END ASC,
-                    CASE
-                        WHEN	@sortAsc != 1 THEN ''
-                        WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
-                    END ASC,
-                    CASE
-                        WHEN	@sortAsc != 1 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
-                    END ASC, 
-                    CASE
-                        WHEN	@sortAsc != 1 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated]
-                    END ASC,    
-                    CASE
-                        WHEN	@sortAsc != 1 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
-                    END ASC,
-                    CASE
-                        WHEN	@sortAsc != 1 THEN ''
-                        WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
-                    END ASC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN ''
-                        WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN ''
-                        WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated] 
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN ''
-                        WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
-                    END DESC
-            OFFSET  (@pageNum - 1) * @pageSize ROWS
-            FETCH	NEXT @pageSize ROWS ONLY;
+		INSERT  INTO @pagedItemIds
+				SELECT	p.[PatientId]
+				  FROM	[dbo].[Patients] p
+				 WHERE	p.[LastName] LIKE '%'+ @searchTerm + '%' OR p.[FirstName] LIKE '%'+ @searchTerm + '%'
+				 ORDER	BY 
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
+						END ASC, 
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated]
+						END ASC,    
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated] 
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
+						END DESC
+				OFFSET  (@pageNum - 1) * @pageSize ROWS
+				FETCH	NEXT @pageSize ROWS ONLY;
+	END
+	ELSE
+	BEGIN
+		--  SEARCH TERM ABSENT
+		--	Select Paged Collection of matching Items
+		INSERT  INTO @pagedItemIds
+				SELECT	p.[PatientId]
+				FROM	[dbo].[Patients] p
+				ORDER	BY 
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
+						END ASC, 
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated]
+						END ASC,    
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated] 
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
+						END DESC
+				OFFSET  (@pageNum - 1) * @pageSize ROWS
+				FETCH	NEXT @pageSize ROWS ONLY;
+		END
 
 	SELECT	p.[PatientId], p.[FirstName], p.[LastName], p.[BirthDate], p.[GenderDescription], p.[DateCreated], p.[DateUpdated], p.[IsActive]
 	  FROM	@pagedItemIds i INNER
