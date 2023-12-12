@@ -240,6 +240,7 @@ BEGIN
 END
 GO
 
+
 ALTER PROCEDURE [dbo].[usp_GetPatients] 
 	@pageNum			INT = 1, 
 	@pageSize			INT = 10,
@@ -250,12 +251,16 @@ ALTER PROCEDURE [dbo].[usp_GetPatients]
 AS
 BEGIN
 	SET NOCOUNT ON;
-	DECLARE @pagedItemIds TABLE(id INT);
+	DECLARE @pagedItemIds TABLE(id INT)
+	DECLARE @searchCollectionTotal INT
 
 	-- SEARCH TERM PRESENT
 	IF(@searchTerm IS NOT NULL AND @searchTerm != '')
 	BEGIN
 		--	Select Paged Collection of matching Items
+		SELECT	@searchCollectionTotal = COUNT([PatientId]) FROM [dbo].[Patients] p
+		 WHERE	p.[LastName] LIKE '%'+ @searchTerm + '%' OR p.[FirstName] LIKE '%'+ @searchTerm + '%';
+
 		INSERT  INTO @pagedItemIds
 				SELECT	p.[PatientId]
 				  FROM	[dbo].[Patients] p
@@ -377,9 +382,8 @@ BEGIN
 	  JOIN	[dbo].[Patients] p 
 	    ON	p.PatientId = i.id;
 
-	
 	IF(@searchTerm IS NOT NULL AND @searchTerm != '')
-		SELECT @collectionTotal = COUNT(id) FROM @pagedItemIds
+		SELECT @collectionTotal = @searchCollectionTotal
 	ELSE
 		SELECT @collectionTotal = COUNT([PatientId]) FROM [dbo].[Patients]
 END
