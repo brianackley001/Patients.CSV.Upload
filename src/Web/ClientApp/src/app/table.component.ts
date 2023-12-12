@@ -1,17 +1,18 @@
 import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, QueryList, ViewChildren } from '@angular/core';
 import { Observable } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { NgbHighlight, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { Patient } from './dataModels/patient';
 import { PatientService } from './services/patient.service';
 import { NgbdSortableHeader, SortEvent } from './directives/sortable.directive';
-import { FormsModule } from '@angular/forms';
-import { NgbHighlight, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { MmDdYYYYDatePipe } from './mm--dd-yyyy-date.pipe';
 
 @Component({
 	selector: 'ngbd-table-complete',
 	standalone: true,
-	imports: [DecimalPipe, FormsModule, AsyncPipe, NgbHighlight, NgbdSortableHeader, NgbPaginationModule],
+	imports: [DecimalPipe, FormsModule, AsyncPipe, NgbHighlight, NgbdSortableHeader, NgbPaginationModule, MmDdYYYYDatePipe],
 	templateUrl: './table.component.html',
 	providers: [PatientService, DecimalPipe],
 })

@@ -1,7 +1,7 @@
 
 <form>
 	<div class="mb-3 row">
-		<label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Full text search:</label>
+		<label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Filter by name:</label>
 		<div class="col-xs-3 col-sm-auto">
 			<input
 				id="table-complete-search"
@@ -34,7 +34,7 @@
 						<ngb-highlight [result]="patient.firstName" [term]="service.searchTerm" />
 					</td>
 					<td><ngb-highlight [result]="patient.lastName" [term]="service.searchTerm" /></td>
-					<td>{{patient.birthDate}}</td>
+					<td>{{patient.birthDate | mmDdYYYYDate}}</td>
 					<td>{{patient.genderDescription}}</td>
 				</tr>
 			} @empty {
