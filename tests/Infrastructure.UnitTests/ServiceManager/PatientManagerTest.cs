@@ -123,11 +123,11 @@ public class PatientManagerTest
     {
         // Arrange
         _patientRepository.Reset();
-        _patientRepository.Setup(r => r.GetPatients(1, 10, string.Empty)).Returns(Task.FromResult(_patientsCollection));
+        _patientRepository.Setup(r => r.GetPatients(1, 10, null, null, null)).Returns(Task.FromResult(_patientsCollection));
         var sut = new PatientManager(_patientRepository.Object, _convertDTO.Object);
 
         // Act
-        var response = await sut.GetPatients(1, 10 , string.Empty);
+        var response = await sut.GetPatients(1, 10, null, null, null);
 
         // Assert
         Assert.That(response, Is.Not.Null, "response != null");
@@ -144,7 +144,7 @@ public class PatientManagerTest
             Assert.That(response.PageNumber, Is.EqualTo(_patientsDTO.PageNumber), "response.Result.PageNumber");
             Assert.That(response.PageSize, Is.EqualTo(_patientsDTO.PageSize), "response.Result.PageSize");
         });
-        _patientRepository.Verify(r => r.GetPatients(1, 10, string.Empty), Times.Once, "Expected method to be called once");
+        _patientRepository.Verify(r => r.GetPatients(1, 10, null, null, null), Times.Once, "Expected method to be called once");
     }
 
     [Test(Description = "GetPatients throws expected exception")]
@@ -152,16 +152,16 @@ public class PatientManagerTest
     {
         // Arrange
         _patientRepository.Reset();
-        _patientRepository.Setup(r => r.GetPatients(1, 10, string.Empty)).Throws(_expectedException!);
+        _patientRepository.Setup(r => r.GetPatients(1, 10, null, null, null)).Throws(_expectedException!);
         var sut = new PatientManager(_patientRepository.Object, _convertDTO.Object);
 
         // Act
         //var response = await sut.GetPatients(1, 10);
 
         // Assert
-        NullReferenceException? nullReferenceException = Assert.ThrowsAsync<NullReferenceException>(() => sut.GetPatients(1, 10, string.Empty));
+        NullReferenceException? nullReferenceException = Assert.ThrowsAsync<NullReferenceException>(() => sut.GetPatients(1, 10, null, null, null));
         Assert.That(nullReferenceException.Message, Is.EqualTo(_expectedException.Message));
-        _patientRepository.Verify(r => r.GetPatients(1, 10, string.Empty), Times.Once, "Expected method to be called once");
+        _patientRepository.Verify(r => r.GetPatients(1, 10, null, null, null), Times.Once, "Expected method to be called once");
     }
 
     [Test(Description = "UpsertPatient returns success")]

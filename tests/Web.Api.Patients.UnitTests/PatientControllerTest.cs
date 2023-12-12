@@ -66,11 +66,11 @@ internal class PatientControllerTest
     {
         // Arrange
         _patientManager.Reset();
-        _patientManager.Setup(m => m.GetPatients(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(_expectedPatientsDTO));
+        _patientManager.Setup(m => m.GetPatients(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>())).Returns(Task.FromResult(_expectedPatientsDTO));
         var sut = new PatientController(_patientManager.Object);
 
         // Act
-        var response = await sut.Get(1, 10, string.Empty);
+        var response = await sut.Get(1, 10, "test", "LastName", false);
         OkObjectResult? okObjectResult = response as OkObjectResult;
         PatientsDTO? responseModel = okObjectResult?.Value as PatientsDTO;
 
@@ -80,7 +80,7 @@ internal class PatientControllerTest
             Assert.That(response, Is.Not.Null, "response != null");
             Assert.That(responseModel, Is.Not.Null, "responseModel != null");
         });
-        _patientManager.Verify(m => m.GetPatients(1, 10, string.Empty), Times.Once, "Expected method to be called once");
+        _patientManager.Verify(m => m.GetPatients(1, 10,"test", "LastName", false), Times.Once, "Expected method to be called once");
     }
 
     [Test(Description = "GET patients collection results in 500 Internal Server Error")]
@@ -88,11 +88,11 @@ internal class PatientControllerTest
     {
         // Arrange
         _patientManager.Reset();
-        _patientManager.Setup(m => m.GetPatients(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>())).Throws(_expectedException!);
+        _patientManager.Setup(m => m.GetPatients(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>())).Throws(_expectedException!);
         var sut = new PatientController(_patientManager.Object);
 
         // Act
-        var response = await sut.Get(1, 10, string.Empty);
+        var response = await sut.Get(1, 10, "test", "LastName", false);
         var statusCodeResult = response as StatusCodeResult;
         ObjectResult? objectResult = response as ObjectResult;
         bool? responseModel = objectResult?.Value as bool?;
@@ -100,7 +100,7 @@ internal class PatientControllerTest
         // Assert
         Assert.That(statusCodeResult, Is.Not.Null, "statusCodeResult != null");
         Assert.That(statusCodeResult.StatusCode, Is.EqualTo(500), "StatusCode == 500");
-        _patientManager.Verify(m => m.GetPatients(1, 10, string.Empty), Times.Once, "Expected method to be called once");
+        _patientManager.Verify(m => m.GetPatients(1, 10, "test", "LastName", false), Times.Once, "Expected method to be called once");
     }
 
     [Test(Description = "POST patient results in 200 Success")]

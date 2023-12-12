@@ -19,7 +19,7 @@ public class PatientRepository : IPatientRepository
         _connectionString = configuration.GetConnectionString("Patients_ConnectionString");
     }
 
-    public async Task<PagedCollection<List<Patient>>> GetPatients(int pageNumber, int pageSize, string searchTerm)
+    public async Task<PagedCollection<List<Patient>>> GetPatients(int pageNumber, int pageSize, string? searchTerm, string? sortBy, bool? sortAsc)
     {
         var collectionTotal = 0;
         var patientCollection = new List<Patient>();
@@ -50,7 +50,18 @@ public class PatientRepository : IPatientRepository
                     //fall back to safety net of sproc default value(s) if necessary.
                     parameter.Add("@pageSize", pageSize, DbType.Int32, ParameterDirection.Input);
                 }
-                parameter.Add("@searchTerm", searchTerm, DbType.String, ParameterDirection.Input);
+                if (searchTerm is not null)
+                {
+                    parameter.Add("@searchTerm", searchTerm, DbType.String, ParameterDirection.Input);
+                }
+                if (sortBy is not null)
+                {
+                    parameter.Add("@sortBy", sortBy, DbType.String, ParameterDirection.Input);
+                }
+                if (sortAsc is not null)
+                {
+                    parameter.Add("@sortAsc", sortAsc, DbType.Boolean, ParameterDirection.Input);
+                }
                 parameter.Add("@collectionTotal", 0, DbType.Int32, ParameterDirection.Output);
 
                 patientCollection = connection
