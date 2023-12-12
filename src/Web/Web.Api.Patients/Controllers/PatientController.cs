@@ -25,10 +25,11 @@ public class PatientController : ControllerBase
     }
 
     [HttpGet(Name = "GetPatients") ]
-    public async Task<IActionResult> Get([FromUri] int pageNumber, [FromUri] int pageSize, [FromUri] string searchTerm)
+    public async Task<IActionResult> Get([FromUri] int pageNumber, [FromUri] int pageSize, [FromUri] string? searchTerm = null)
     {
         try
         {
+            searchTerm ??= string.Empty;
             var patients = await _patientManager.GetPatients(pageNumber, pageSize, searchTerm).ConfigureAwait(true);
             return Ok(patients);
         }
