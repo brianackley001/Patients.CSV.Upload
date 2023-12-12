@@ -150,7 +150,7 @@ public class PatientRepository : IPatientRepository
         }).ConfigureAwait(true);
 
         // Insert scenario:
-        patient.PatientId = returnValue;
+        patient.PatientId = patient.PatientId > 0 ? patient.PatientId: returnValue;
 
         return patient;
     }
