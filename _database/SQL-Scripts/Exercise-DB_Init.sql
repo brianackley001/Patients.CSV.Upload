@@ -378,7 +378,10 @@ BEGIN
 	    ON	p.PatientId = i.id;
 
 	
-	SELECT @collectionTotal = COUNT([PatientId]) FROM [dbo].[Patients]
+	IF(@searchTerm IS NOT NULL AND @searchTerm != '')
+		SELECT @collectionTotal = COUNT(id) FROM @pagedItemIds
+	ELSE
+		SELECT @collectionTotal = COUNT([PatientId]) FROM [dbo].[Patients]
 END
 GO
 
