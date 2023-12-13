@@ -1,19 +1,26 @@
 <!--Top Global Navbar-->
-<nav class="navbar bg-primary navbar-expand" data-bs-theme="dark">
+<nav class="navbar bg-primary navbar-expand" data-bs-theme="dark"  routerLinkActive="active">
   <div class="container-fluid">
-    <span class="navbar-brand"><i class="fa-regular fa-chart-bar" style="margin-right:8px;"></i>Patients</span>
+    <span class="navbar-brand"><i class="fa-regular fa-chart-bar" style="margin-right:8px;"></i>App</span>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <form class="d-flex" role="search">
+    <!-- <form class="d-flex" role="search">
       <button class="btn btn-light btn-sm" type="submit"><i class="fa-regular fa-file-lines"
           style="margin-right:5px;"></i>Upload List</button>
-    </form>
+    </form> -->
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/patients">Patients</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/upload">Upload</a>
+      </li>
+    </ul>
   </div>
 </nav>
 
-<!--Patients Table-->
 <div class="container">
-  <ngbd-table-complete></ngbd-table-complete>
+  <router-outlet></router-outlet>
 </div>

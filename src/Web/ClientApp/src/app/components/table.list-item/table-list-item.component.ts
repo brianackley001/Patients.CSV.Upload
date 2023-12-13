@@ -2,8 +2,8 @@
  import { NgbHighlight, NgbModal  } from '@ng-bootstrap/ng-bootstrap';
  import { FormsModule } from '@angular/forms'; 
  
-import { MmDdYYYYDatePipe } from './pipes/mm--dd-yyyy-date.pipe';
-import { Patient } from './dataModels/patient';
+import { MmDdYYYYDatePipe } from '../../pipes/mm--dd-yyyy-date.pipe';
+import { Patient } from '../../dataModels/patient';
 
 @Component({
   selector: 'tr[table-list-item]',

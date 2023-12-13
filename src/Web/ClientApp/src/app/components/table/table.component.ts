@@ -4,18 +4,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbHighlight, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { Patient } from './dataModels/patient';
-import { PatientApiService } from './services/patient-api.service';
-import { NgbdSortableHeader, SortEvent } from './directives/sortable.directive';
-import { MmDdYYYYDatePipe } from './pipes/mm--dd-yyyy-date.pipe';
-import { TableListItem } from './table-list-item.component';	
+import { Patient } from '../../dataModels/patient';
+import { PatientApiService } from '../../services/patient-api.service';
+import { NgbdSortableHeader, SortEvent } from '../../directives/sortable.directive';
+import { MmDdYYYYDatePipe } from '../../pipes/mm--dd-yyyy-date.pipe';
+import { TableListItem } from '../table.list-item/table-list-item.component';	
 
 interface State {
+  filteringSearchSubmitted: boolean;
   page: number;
   pageSize: number;
   searchTerm: string;
-  sortBy: string;
   sortAsc: boolean;
+  sortBy: string;
 }
 interface OnInit {
   ngOnInit(): void;
@@ -50,12 +51,16 @@ export class NgbdTableComplete implements OnInit {
 
   // Internal State tracking
   private _state: State = {
+    filteringSearchSubmitted: false,
     page: 1,
     pageSize: 5,
     searchTerm: '',
-    sortBy: '',
     sortAsc: true,
+    sortBy: '',
   };
+  get filteringSearchSubmitted() {
+    return this._state.filteringSearchSubmitted;
+  }
   get page() {
     return this._state.page;
   }
@@ -65,11 +70,14 @@ export class NgbdTableComplete implements OnInit {
   get searchTerm() {
     return this._state.searchTerm;
   }
+  get sortAsc() {
+    return this._state.sortAsc;
+  }
   get sortBy() {
     return this._state.sortBy;
   }
-  get sortAsc() {
-    return this._state.sortAsc;
+  set filteringSearchSubmitted(filteringSearchSubmitted: boolean) {
+    this._set({ filteringSearchSubmitted });
   }
   set page(page: number) {
     this._set({ page });
@@ -105,6 +113,11 @@ export class NgbdTableComplete implements OnInit {
         this.patientCollectionSize = response.data.collectionTotal;
       });
   }
+	onClearSearchTerm() {
+    this.filteringSearchSubmitted = false;
+		this.searchTerm = '';
+		this.onSearch();
+	}
   onPageNavigate(event: number) {
     this.page = event;
     this.patientApiService
@@ -134,6 +147,7 @@ export class NgbdTableComplete implements OnInit {
         this.patientCollectionSize = response.data.collectionTotal;
         this.page = 1;
 				this.zeroSearchResults = this.patients.length === 0 && this.searchTerm.length > 0 ? true : false;
+        this.filteringSearchSubmitted = true;
       });
   }
   onSort({ column, direction }: SortEvent) {
