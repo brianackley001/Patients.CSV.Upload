@@ -25,7 +25,10 @@ try
     var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
     builder.Services.AddCors(options => options.AddPolicy(name: myAllowSpecificOrigins,
                           policy => policy.WithOrigins("https://localhost:4200",
-                                                  "http://localhost:4200")));
+                                                  "http://localhost:4200")
+
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()));
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();
