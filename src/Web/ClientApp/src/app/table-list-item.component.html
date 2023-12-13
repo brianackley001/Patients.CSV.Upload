@@ -1,5 +1,5 @@
 <tr>
-  <td><i class="fa-solid fa-user-pen"></i></td>
+  <td><i class="fa-solid fa-user-pen"  (click)="openVerticallyCentered(content)"></i></td>
   <td>
     <ngb-highlight [result]="patient.firstName" [term]="ngbSearchTerm" />
   </td>
@@ -7,3 +7,61 @@
   <td>{{patient.birthDate | mmDdYYYYDate}}</td>
   <td>{{patient.genderDescription}}</td>
 </tr>
+
+<ng-template #content let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">Update Patient</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+	</div>
+	<div class="modal-body">
+		<form>
+			<div class="mb-3">
+				<label for="firstName">First Name</label>
+				<div class="input-group">
+					<input
+						id="firstName" 
+            name="first"
+						class="form-control"
+						[(ngModel)]="patient.firstName"
+					/>
+				</div>
+			</div>
+			<div class="mb-3">
+				<label for="lastName">Last Name</label>
+				<div class="input-group">
+					<input
+						id="lastName" 
+            name="last"
+						class="form-control"
+						[(ngModel)]="patient.lastName"
+					/>
+				</div>
+			</div>
+			<div class="mb-3">
+				<label for="dateOfBirth">Date of birth</label>
+				<div class="input-group">
+					<input
+						id="dateOfBirth"
+            name="birthDate"
+						class="form-control"
+						[(ngModel)]="patient.birthDate"
+					/>
+				</div>
+			</div>
+			<div class="mb-3">
+				<label for="genderDescription">Gender</label>
+				<div class="input-group">
+					<input
+						id="genderDescription"
+            name="gender"
+						class="form-control"
+						[(ngModel)]="patient.genderDescription"
+					/>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Save</button>
+	</div>
+</ng-template>
