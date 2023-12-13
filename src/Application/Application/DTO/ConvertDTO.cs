@@ -3,6 +3,24 @@
 namespace Application.DTO;
 public class ConvertDTO : IConvertDTO
 {
+    public async Task<Patient> ConvertToPatient(PatientDTO patientDTO)
+    {
+        var modelPatient = new Patient();
+        await Task.Run(() => modelPatient = new Patient()
+        {
+            // Allows for data mapping to decouple backend data entities from front end models
+            PatientId = patientDTO.Id,
+            FirstName = patientDTO.FirstName,
+            LastName = patientDTO.LastName,
+            GenderDescription = patientDTO.GenderDescription,
+            BirthDate = (DateTime)patientDTO.BirthDate,
+            DateCreated = (DateTime)patientDTO.DateCreated,
+            DateUpdated = (DateTime)patientDTO.DateUpdated
+        }).ConfigureAwait(true);
+        return modelPatient;
+
+    }
+
     public async Task<PatientDTO> ConvertToPatientDTO(Patient patient)
     {
         var patientDTO = new PatientDTO();

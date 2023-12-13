@@ -25,27 +25,25 @@ internal class PatientControllerTest
             CollectionTotal = 100,
             PageNumber = 1,
             PageSize = 10,
-            Patients = new List<Patient>
+            Patients = new List<PatientDTO>
             {
                 new() {
-                    PatientId = 1,
+                    Id = 1,
                     FirstName = "Test",
                     LastName = "Test",
                     DateCreated = DateTime.Now,
                     DateUpdated = DateTime.Now,
                     BirthDate = DateTime.Now,
-                    GenderDescription = "Test",
-                    IsActive = true
+                    GenderDescription = "Test"
                 },
                 new() {
-                    PatientId = 2,
+                    Id = 2,
                     FirstName = "Test",
                     LastName = "Test",
                     DateCreated = DateTime.Now,
                     DateUpdated = DateTime.Now,
                     BirthDate = DateTime.Now,
-                    GenderDescription = "Test",
-                    IsActive = true
+                    GenderDescription = "Test"
                 },
             }
         };

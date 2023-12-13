@@ -55,16 +55,8 @@ public class PatientManager : IPatientManager
     public async Task<PatientDTO> UpsertPatient(PatientDTO patientDTO)
     {
         // Allow for business logic conversion here between Web Layer DTO & Domain models
-        var patient = new Patient()
-        {
-            PatientId = patientDTO.Id,
-            FirstName = patientDTO.FirstName,
-            LastName = patientDTO.LastName,
-            DateCreated = (DateTime)patientDTO.DateCreated,   
-            DateUpdated = (DateTime)patientDTO.DateUpdated,
-            BirthDate = (DateTime)patientDTO.BirthDate,
-            GenderDescription = patientDTO.GenderDescription
-        };
+        var patient = await _convertDTO.ConvertToPatient(patientDTO);
+        
         try
         {
             var upsertResult = await _patientRepository.UpsertPatient(patient);
