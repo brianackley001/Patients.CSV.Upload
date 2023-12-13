@@ -33,28 +33,26 @@ public class PatientManagerTest
             CollectionTotal = 100,
             PageNumber = 1,
             PageSize = 10,
-            Patients = new List<Patient>
+            Patients = new List<PatientDTO>
             {
                 new() {
-                    PatientId = 1,
+                    Id = 1,
                     FirstName = "Test",
                     LastName = "Test",
                     DateCreated = DateTime.Now,
                     DateUpdated = DateTime.Now,
                     BirthDate = DateTime.Now,
-                    GenderDescription = "Test",
-                    IsActive = true
+                    GenderDescription = "Test"
                 },
                 new()
                 {
-                    PatientId = 2,
+                    Id = 2,
                     FirstName = "Test",
                     LastName = "Test",
                     DateCreated = DateTime.Now,
                     DateUpdated = DateTime.Now,
                     BirthDate = DateTime.Now,
                     GenderDescription = "Test",
-                    IsActive = true
                 },
             }
         };
@@ -124,6 +122,7 @@ public class PatientManagerTest
         // Arrange
         _patientRepository.Reset();
         _patientRepository.Setup(r => r.GetPatients(1, 10, null, null, null)).Returns(Task.FromResult(_patientsCollection));
+        _convertDTO.Setup(c => c.ConvertToPatientsDTO(_patientsCollection)).Returns(Task.FromResult(_patientsDTO));
         var sut = new PatientManager(_patientRepository.Object, _convertDTO.Object);
 
         // Act
@@ -133,13 +132,13 @@ public class PatientManagerTest
         Assert.That(response, Is.Not.Null, "response != null");
         Assert.Multiple(() =>
         {
-            Assert.That(response.Patients.GetType(), Is.EqualTo(typeof(List<Patient>)), "response.Result.Patients.GetType()");
+            Assert.That(response.Patients!.GetType(), Is.EqualTo(typeof(List<PatientDTO>)), "response.Result.Patients.GetType()");
             Assert.That(response.GetType(), Is.EqualTo(typeof(PatientsDTO)), "response.Result.Patients.GetType()");
             Assert.That(response.Patients, Has.Count.EqualTo(2), "response.Result.Patients.Count");
         });
         Assert.Multiple(() =>
         {
-            Assert.That(response.Patients[0].PatientId, Is.EqualTo(1), "response.Result.Patients[0].PatientId");
+            Assert.That(response.Patients[0].Id, Is.EqualTo(1), "response.Result.Patients[0].PatientId");
             Assert.That(response.CollectionTotal, Is.EqualTo(_patientsDTO.CollectionTotal), "response.Result.CollectionTotal");
             Assert.That(response.PageNumber, Is.EqualTo(_patientsDTO.PageNumber), "response.Result.PageNumber");
             Assert.That(response.PageSize, Is.EqualTo(_patientsDTO.PageSize), "response.Result.PageSize");
@@ -165,7 +164,6 @@ public class PatientManagerTest
     }
 
     [Test(Description = "UpsertPatient returns success")]
-    [Ignore("Mock objects apper to be Setup correctly but are returning null. Timeboxed and moving on to other tasks")]
     public async Task UpsertPatientSuccess()
     {
         // Arrange
@@ -173,6 +171,7 @@ public class PatientManagerTest
 
         _convertDTO.Reset();
         _patientRepository.Reset();
+        _convertDTO.Setup(c => c.ConvertToPatient(_patientDTO)).Returns(Task.FromResult(patientItem));
         _convertDTO.Setup(c => c.ConvertToPatientDTO(patientItem)).Returns(Task.FromResult(_patientDTO));
         _patientRepository.Setup(r => r.UpsertPatient(patientItem)).Returns(Task.FromResult(patientItem));
         var sut = new PatientManager(_patientRepository.Object, _convertDTO.Object);
@@ -194,19 +193,20 @@ public class PatientManagerTest
     }
 
 
-    [Ignore("Mock objects apper to be Setup correctly but are returning null. Timeboxed and moving on to other tasks")]
     [Test(Description = "UpsertPatient throws expected exception")]
     public void UpsertPatientThrowsException()
     {
         // Arrange
         var patientItem = _patientsCollection.Collection[0];
         _patientRepository.Reset();
-        _patientRepository.Setup(r => r.UpsertPatient(patientItem)).Throws(_expectedException!);
+        _convertDTO.Reset();
+        _convertDTO.Setup(c => c.ConvertToPatient(_patientDTO)).Returns(Task.FromResult(patientItem));
         _convertDTO.Setup(c => c.ConvertToPatientDTO(patientItem)).Returns(Task.FromResult(_patientDTO));
+        _patientRepository.Setup(r => r.UpsertPatient(patientItem)).Throws(_expectedException!);
         var sut = new PatientManager(_patientRepository.Object, _convertDTO.Object);
 
         // Act
-        //var response = await sut.GetPatients(1, 10);
+        //var response = await sut.UpsertPatient(_patientDTO);
 
         // Assert
         NullReferenceException? nullReferenceException = Assert.ThrowsAsync<NullReferenceException>(() => sut.UpsertPatient(_patientDTO));
@@ -219,6 +219,8 @@ public class PatientManagerTest
         // Arrange
         var patientItem = _patientsCollection.Collection[0];
         _patientRepository.Reset();
+        _convertDTO.Setup(c => c.ConvertToPatient(_patientDTO)).Returns(Task.FromResult(patientItem));
+        _convertDTO.Setup(c => c.ConvertToPatientDTO(patientItem)).Returns(Task.FromResult(_patientDTO));
         _patientRepository.Setup(r => r.ImportPatients(_patientUploadTvpDTO)).Throws(_expectedException!);
         var sut = new PatientManager(_patientRepository.Object, _convertDTO.Object);
 
