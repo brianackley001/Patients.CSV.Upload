@@ -32,7 +32,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr table-list-item *ngFor="let patient of patients" [patient]="patient" [ngbSearchTerm]="searchTerm" ></tr>
+				<tr table-list-item *ngFor="let patient of patients" [patient]="patient" [ngbSearchTerm]="searchTerm" (savePatientEvent)="onUpdatePatient($event)"></tr>
 			</tbody>
 		</table>
 

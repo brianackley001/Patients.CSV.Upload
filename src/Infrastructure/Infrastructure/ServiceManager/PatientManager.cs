@@ -18,15 +18,17 @@ public class PatientManager : IPatientManager
 
     public async Task<PatientsDTO> GetPatients(int pageNumber, int pageSize, string? searchTerm, string? sortBy, bool? sortAsc)
     {
+        // Allow for business logic conversion here between Web Layer DTO & Domain models
         try
         {
             var patientsCollection = await _patientRepository.GetPatients(pageNumber, pageSize, searchTerm, sortBy, sortAsc);
-            var patientsDto = new PatientsDTO(
-                patientsCollection.Collection, 
-                patientsCollection.PageNumber, 
-                patientsCollection.PageSize, 
-                patientsCollection.CollectionTotal);
-
+            //var patientsDto = new PatientsDTO(
+            //    patientsCollection.Collection, 
+            //    patientsCollection.PageNumber, 
+            //    patientsCollection.PageSize, 
+            //    patientsCollection.CollectionTotal);
+            // Allow for business logic conversion here between Web Layer DTO & Domain models
+            var patientsDto = await _convertDTO.ConvertToPatientsDTO(patientsCollection);
             return patientsDto;
         }
         catch (Exception ex)

@@ -4,7 +4,7 @@
     <ngb-highlight [result]="patient.firstName" [term]="ngbSearchTerm" />
   </td>
   <td><ngb-highlight [result]="patient.lastName" [term]="ngbSearchTerm" /></td>
-  <td>{{patient.birthDate | mmDdYYYYDate}}</td>
+  <td>{{patient.birthDate }}</td>
   <td>{{patient.genderDescription}}</td>
 </tr>
 
@@ -14,54 +14,83 @@
 		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
 	</div>
 	<div class="modal-body">
-		<form>
+		<form  #patientForm="ngForm" (ngSubmit)="patientForm.form.valid && onSubmitForm()">
 			<div class="mb-3">
 				<label for="firstName">First Name</label>
 				<div class="input-group">
-					<input
+					 <input
 						id="firstName" 
-            name="first"
+            name="firstName"
+            #firstName="ngModel"
+            required
+            type="text"
+            minlength="2"
 						class="form-control"
 						[(ngModel)]="patient.firstName"
-					/>
+					/> 
 				</div>
+        <div [hidden]="firstName.valid || firstName.pristine" class="alert alert-danger"> 
+          First Name is required (at least two characters)
+        </div>
 			</div>
 			<div class="mb-3">
 				<label for="lastName">Last Name</label>
 				<div class="input-group">
 					<input
 						id="lastName" 
-            name="last"
+            #lastName="ngModel"
+            name="lastName"
+            required
+            minlength="2"
 						class="form-control"
 						[(ngModel)]="patient.lastName"
 					/>
+          <!-- <input type="text" formControlName="lastName"> -->
 				</div>
+        <div [hidden]="lastName.valid || lastName.pristine" class="alert alert-danger"> 
+          Last Name is required (at least two characters)
+        </div>
 			</div>
 			<div class="mb-3">
 				<label for="dateOfBirth">Date of birth</label>
 				<div class="input-group">
 					<input
 						id="dateOfBirth"
-            name="birthDate"
+            #dateOfBirth="ngModel"
+            name="dateOfBirth"
+            required
+            minlength="8"
 						class="form-control"
+            pattern="^(0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)\d\d$"
 						[(ngModel)]="patient.birthDate"
 					/>
+          <!-- <input type="text" formControlName="birthDate"> -->
 				</div>
+        <div [hidden]="dateOfBirth.valid || dateOfBirth.pristine" class="alert alert-danger"> 
+          A valid date is required (mm/dd/yyyy or m/d/yyyy)
+        </div>
 			</div>
 			<div class="mb-3">
 				<label for="genderDescription">Gender</label>
 				<div class="input-group">
 					<input
 						id="genderDescription"
-            name="gender"
+            #genderDescription="ngModel"
+            name="genderDescription"
+            required
+            minlength="1"
 						class="form-control"
 						[(ngModel)]="patient.genderDescription"
 					/>
+          <!-- <input type="text" formControlName="genderDescription"> -->
 				</div>
+        <div [hidden]="genderDescription.valid || genderDescription.pristine" class="alert alert-danger"> 
+          Please provide a gender value (e.g., "Female", "Non-Binary", "Male")
+        </div>
 			</div>
 		</form>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Save</button>
+		<button  type="submit" (click)="$event.preventDefault();onSubmitForm();" [disabled]="!patientForm.valid" class="btn btn-primary">Save</button>
 	</div>
 </ng-template>

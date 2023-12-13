@@ -20,8 +20,27 @@ public class ConvertDTO : IConvertDTO
         return patientDTO;
     }
 
-    //public PatientsDTO ConvertToPatientsDTO(PagedCollection<List<Patient>> patients)
-    //{
-    //    return new PatientsDTO(patients);
-    //}
+    public async Task<PatientsDTO> ConvertToPatientsDTO(PagedCollection<List<Patient>> patients)
+    {
+        var patientsDTO = new PatientsDTO();
+        List<PatientDTO> convertedCollection = patients.Collection!.ConvertAll<PatientDTO>(p => new PatientDTO
+        {
+            Id = p.PatientId,
+            FirstName = p.FirstName,
+            LastName = p.LastName,
+            GenderDescription = p.GenderDescription,
+            BirthDate = p.BirthDate,
+            DateCreated = p.DateCreated,
+            DateUpdated = p.DateUpdated
+        });
+        await Task.Run(() => patientsDTO = new PatientsDTO()
+        {
+            // Allows for data mapping to decouple backend data entities from front end models
+            Patients = convertedCollection,
+            PageNumber = patients.PageNumber,
+            PageSize = patients.PageSize,
+            CollectionTotal = patients.CollectionTotal
+        }).ConfigureAwait(true);
+        return patientsDTO;
+    }
 }

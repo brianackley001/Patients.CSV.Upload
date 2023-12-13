@@ -105,6 +105,21 @@ export class NgbdTableComplete implements OnInit {
         this.patientCollectionSize = response.data.collectionTotal;
       });
   }
+  onPageNavigate(event: number) {
+    this.page = event;
+    this.patientApiService
+      .getPatients(
+        this.page,
+        this.pageSize,
+        this.searchTerm,
+        this.sortBy,
+        this.sortAsc
+      )
+      .then((response: any) => {
+        this.patients = response.data.patients;
+        this.patientCollectionSize = response.data.collectionTotal;
+      });
+  }
   onSearch() {
     this.patientApiService
       .getPatients(
@@ -119,21 +134,6 @@ export class NgbdTableComplete implements OnInit {
         this.patientCollectionSize = response.data.collectionTotal;
         this.page = 1;
 				this.zeroSearchResults = this.patients.length === 0 && this.searchTerm.length > 0 ? true : false;
-      });
-  }
-  onPageNavigate(event: number) {
-    this.page = event;
-    this.patientApiService
-      .getPatients(
-        this.page,
-        this.pageSize,
-        this.searchTerm,
-        this.sortBy,
-        this.sortAsc
-      )
-      .then((response: any) => {
-        this.patients = response.data.patients;
-        this.patientCollectionSize = response.data.collectionTotal;
       });
   }
   onSort({ column, direction }: SortEvent) {
@@ -159,4 +159,22 @@ export class NgbdTableComplete implements OnInit {
         this.patientCollectionSize = response.data.collectionTotal;
       });
   }
-}
+	onUpdatePatient(patient: Patient) {
+		console.log("onUpdatePatient() called, patient: ", patient);
+			this.patientApiService.upsertPatient(patient).then((response: any) => {
+				// refresh the table's Patient collection in case it affects the current sort/pagination/search
+				this.patientApiService
+					.getPatients(
+						this.page,
+						this.pageSize,
+						this.searchTerm,
+						this.sortBy,
+						this.sortAsc
+					)
+					.then((response: any) => {
+						this.patients = response.data.patients;
+						this.patientCollectionSize = response.data.collectionTotal;
+					});
+		}); 
+	}
+ } 
