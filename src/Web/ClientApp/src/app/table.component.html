@@ -32,18 +32,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr table-list-item *ngFor="let patient of patients" [patient]="patient"></tr>
-				<!-- <table-list-item *ngFor="let patient of patients" [patient]="patient">
-				</table-list-item> -->
-				<!-- <tr>
-					<td><i class="fa-regular fa-address-card"></i></td>
-					<td>
-						<ngb-highlight [result]="patient.firstName" [term]="searchTerm" />
-					</td>
-					<td><ngb-highlight [result]="patient.lastName" [term]="searchTerm" /></td>
-					<td>{{patient.birthDate | mmDdYYYYDate}}</td>
-					<td>{{patient.genderDescription}}</td>
-				</tr> -->
+				<tr table-list-item *ngFor="let patient of patients" [patient]="patient" [ngbSearchTerm]="searchTerm" ></tr>
 			</tbody>
 		</table>
 

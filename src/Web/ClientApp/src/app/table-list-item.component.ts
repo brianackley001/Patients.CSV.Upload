@@ -7,12 +7,11 @@ import { Patient } from './dataModels/patient';
 @Component({
   selector: 'tr[table-list-item]',
   standalone: true,
-  imports: [ MmDdYYYYDatePipe,],
+  imports: [ MmDdYYYYDatePipe,NgbHighlight],
   templateUrl: './table-list-item.component.html',
   styleUrl: './table-list-item.component.css'
 })
 export class TableListItem{
   @Input() patient!: Patient;
-  @Input() ngbResult!: string;
   @Input() ngbSearchTerm!: string;
 }
