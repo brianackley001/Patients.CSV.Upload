@@ -7,7 +7,8 @@ import { NgbHighlight, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { Patient } from './dataModels/patient';
 import { PatientApiService } from './services/patient-api.service';
 import { NgbdSortableHeader, SortEvent } from './directives/sortable.directive';
-import { MmDdYYYYDatePipe } from './mm--dd-yyyy-date.pipe';
+import { MmDdYYYYDatePipe } from './pipes/mm--dd-yyyy-date.pipe';
+import { TableListItem } from './table-list-item.component';	
 
 interface State {
   page: number;
@@ -32,6 +33,7 @@ interface OnInit {
     NgbPaginationModule,
     MmDdYYYYDatePipe,
     CommonModule,
+		TableListItem,
   ],
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css'],
@@ -42,6 +44,7 @@ export class NgbdTableComplete implements OnInit {
   headers!: QueryList<NgbdSortableHeader>;
   patients: Patient[] = [];
   patientCollectionSize: number = 0;
+	zeroSearchResults: boolean = false;
 
   constructor(private patientApiService: PatientApiService) {}
 
@@ -115,6 +118,7 @@ export class NgbdTableComplete implements OnInit {
         this.patients = response.data.patients;
         this.patientCollectionSize = response.data.collectionTotal;
         this.page = 1;
+				this.zeroSearchResults = this.patients.length === 0 && this.searchTerm.length > 0 ? true : false;
       });
   }
   onPageNavigate(event: number) {
