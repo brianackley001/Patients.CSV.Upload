@@ -1,5 +1,5 @@
-<div *ngIf="!hasItems; else showItems">
-	<div class="card" style="width: 28rem; margin-top: 45px;">
+<div *ngIf="patientCollectionSize < 1; else showItems">
+	<div class="card" style="margin-top: 45px;">
 		<div class="card-header bg-info-subtle">
 			<h1>No patients to display</h1>
 		</div>
@@ -13,15 +13,12 @@
 	<br />
 	<form>
 		<div class="mb-3 row">
-			<label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Filter by name:</label>
-			<div class="col-xs-3 col-sm-auto">
-				<input id="table-complete-search" type="text" class="form-control" name="searchTerm"
-					[(ngModel)]="service.searchTerm" />
-				<!-- @if (service.loading$ | async) {
-				<span class="col col-form-label"><i class="fa-solid fa-spinner"></i>Loading...</span>
-			} -->
+			<label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Filter by name</label>
+			<div class="col-xs-3 col-sm-8 col-md-9">
+				<input id="table-complete-search" type="text" class="form-control form-control-sm" name="searchTerm"
+					[(ngModel)]="searchTerm" />
+					<button class="btn btn-sm btn-outline-secondary mt-3" type="button" (click)="onSearch()">Filter</button>
 			</div>
-
 		</div>
 
 		<table class="table table-striped">
@@ -35,32 +32,36 @@
 				</tr>
 			</thead>
 			<tbody>
-				@for (patient of patients$ | async; track patient.id) {
+				<ng-template ngIf="currentPageData$ | async as patients; else elseBlock">
+				@for (patient of patients; track patient.id) {
 				<tr>
-					<td><i class="fa-regular fa-address-card" (click)="onClickTestApi(patient)"></i></td>
+					<td><i class="fa-regular fa-address-card"></i></td>
 					<td>
-						<ngb-highlight [result]="patient.firstName" [term]="service.searchTerm" />
+						<ngb-highlight [result]="patient.firstName" [term]="searchTerm" />
 					</td>
-					<td><ngb-highlight [result]="patient.lastName" [term]="service.searchTerm" /></td>
+					<td><ngb-highlight [result]="patient.lastName" [term]="searchTerm" /></td>
 					<td>{{patient.birthDate | mmDdYYYYDate}}</td>
 					<td>{{patient.genderDescription}}</td>
 				</tr>
-				} @empty {
-				<tr>
-					<td colspan="4" style="text-align: center">No patients found</td>
-				</tr>
 				}
+				</ng-template>
+				<ng-template #elseBlock>Content to render when condition is false.
+					<tr>
+						<td colspan="4" style="text-align: center">No patients found</td>
+					</tr>
+				</ng-template>
 			</tbody>
 		</table>
 
 		<div class="d-flex justify-content-between p-2">
-			<ngb-pagination [collectionSize]="(total$ | async)!" [(page)]="service.page" [pageSize]="service.pageSize">
+			<ngb-pagination size="sm" [collectionSize]="patientCollectionSize" [(page)]="page" [pageSize]="pageSize" (pageChange)="onPageNavigate($event)">
 			</ngb-pagination>
 
-			<select class="form-select" style="width: auto" name="pageSize" [(ngModel)]="service.pageSize">
+			<select class="form-select" style="width: auto" name="pageSize" [(ngModel)]="pageSize">
 				<option [ngValue]="2">2 items per page</option>
-				<option [ngValue]="4">4 items per page</option>
-				<option [ngValue]="6">6 items per page</option>
+				<option [ngValue]="5">5 items per page</option>
+				<option [ngValue]="10">10 items per page</option>
+				<option [ngValue]="25">25 items per page</option>
 			</select>
 		</div>
 	</form>
