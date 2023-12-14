@@ -15,6 +15,7 @@ git clone https://github.com/brianackley001/Patients.CSV.Upload.git
   - The API should default to being available at https://localhost:7171/  (Swagger:  https://localhost:7171/swagger/index.html)
 - Client App
   - Open the folder `./src/Web/ClientApp` in VS Code to view the client application
+  - Install the client app: `npm install`
   - Run `ng serve` to launch the Angular application at http://localhost:4200/
 > [!NOTE]
 > - The client app's `environments` folder is defining the API endpoint as  https://localhost:7171/ 
