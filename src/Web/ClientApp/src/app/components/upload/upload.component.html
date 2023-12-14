@@ -7,20 +7,36 @@
     <div class="card-text">
       <p>Please include the following valid import columns, separated by comma delimiters:</p>
       <ul>
-        <li>First Name</li>
-        <li>Last Name</li>
+        <li>FirstName</li>
+        <li>LastName</li>
         <li>Birthday</li>
         <li>Gender</li>
       </ul>
+      <p>Please restrict your file's size to <b>5mb.</b></p>
       <p>The first row should identify the valid import column names. For Example:</p>
-      <samp>First Name,Last Name,Birthday,Gender</samp>
+      <samp>FirstName,LastName,Birthday,Gender</samp>
     </div>
     <hr class="my-8">
     <p>A sample patient data row:</p>
       <samp>Carol,Denvers,1968-04-24,F</samp>
+    <ngb-alert *ngIf="!uploadErrors.isvalid && fileProcessingComplete" type="danger">
+      @for (error of uploadErrors.errors; track $index) {
+        <p>{{ error }}</p>
+      }
+    </ngb-alert>
+    <ngb-alert *ngIf="uploadErrors.isvalid && fileProcessingComplete && successMessage.length > 0" type="success">
+        <p>{{ successMessage }}</p>
+    </ngb-alert>
   </div>
   
+  <input type="file" class="file-input"
+       (change)="onFileSelected($event)"  accept=".csv"  #fileUpload >
+
   <div class="card-footer text-muted  text-center">
-    <a href="#" class="btn btn-primary">Upload CSV</a>
+    <div class="file-upload">
+    <button type="button" class="btn btn-primary" aria-label="Left Align" (click)="fileUpload.click()">
+			<span class="fa-solid fa-file-arrow-up" style="padding-right: 6px;" aria-hidden="true"></span>Upload CSV
+		</button>
+  </div>
   </div>
 </div>

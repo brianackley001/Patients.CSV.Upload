@@ -22,7 +22,7 @@ public class ImportController : ControllerBase
         _patientManager = patientManager;
     }
 
-    [HttpPost("patient")]
+    [HttpPost("Patient")]
     public async Task<IActionResult> ImportPatientList([FromBody] List<PatientUploadTvpDTO> patients)
     {
         try

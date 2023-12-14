@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from './../../environments/environment';
 import axios from 'axios';
 import { Patient } from '../dataModels/patient';
+import { PatientCsvItem } from '../dataModels/patientCsvItem';
 
 @Injectable({
   providedIn: 'root'
@@ -20,5 +21,9 @@ export class PatientApiService {
   }
   upsertPatient(patient: Patient) {
     return axios.post(`${environment.apiUrl}/Patient`, patient);
+  }
+  upsertPatientCsvImport(upoadItems: PatientCsvItem[]) {
+    console.table(upoadItems);
+    return axios.post(`${environment.apiUrl}/Import/patient`, upoadItems);
   }
 }
