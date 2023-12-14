@@ -25,29 +25,25 @@ internal class PatientControllerTest
             CollectionTotal = 100,
             PageNumber = 1,
             PageSize = 10,
-            Patients = new List<Patient>
+            Patients = new List<PatientDTO>
             {
-                new Patient
-                {
-                    PatientId = 1,
+                new() {
+                    Id = 1,
                     FirstName = "Test",
                     LastName = "Test",
                     DateCreated = DateTime.Now,
                     DateUpdated = DateTime.Now,
                     BirthDate = DateTime.Now,
-                    GenderDescription = "Test",
-                    IsActive = true
+                    GenderDescription = "Test"
                 },
-                new Patient
-                {
-                    PatientId = 2,
+                new() {
+                    Id = 2,
                     FirstName = "Test",
                     LastName = "Test",
                     DateCreated = DateTime.Now,
                     DateUpdated = DateTime.Now,
                     BirthDate = DateTime.Now,
-                    GenderDescription = "Test",
-                    IsActive = true
+                    GenderDescription = "Test"
                 },
             }
         };
@@ -68,18 +64,21 @@ internal class PatientControllerTest
     {
         // Arrange
         _patientManager.Reset();
-        _patientManager.Setup(m => m.GetPatients(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.FromResult(_expectedPatientsDTO));
+        _patientManager.Setup(m => m.GetPatients(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>())).Returns(Task.FromResult(_expectedPatientsDTO));
         var sut = new PatientController(_patientManager.Object);
 
         // Act
-        var response = await sut.Get(1, 10);
+        var response = await sut.Get(1, 10, "test", "LastName", false);
         OkObjectResult? okObjectResult = response as OkObjectResult;
         PatientsDTO? responseModel = okObjectResult?.Value as PatientsDTO;
 
-        // Assert
-        Assert.That(response, Is.Not.Null, "response != null");
-        Assert.That(responseModel, Is.Not.Null, "responseModel != null");
-        _patientManager.Verify(m => m.GetPatients(1, 10), Times.Once, "Expected method to be called once");
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(response, Is.Not.Null, "response != null");
+            Assert.That(responseModel, Is.Not.Null, "responseModel != null");
+        });
+        _patientManager.Verify(m => m.GetPatients(1, 10,"test", "LastName", false), Times.Once, "Expected method to be called once");
     }
 
     [Test(Description = "GET patients collection results in 500 Internal Server Error")]
@@ -87,19 +86,19 @@ internal class PatientControllerTest
     {
         // Arrange
         _patientManager.Reset();
-        _patientManager.Setup(m => m.GetPatients(It.IsAny<int>(), It.IsAny<int>())).Throws(_expectedException!);
+        _patientManager.Setup(m => m.GetPatients(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>())).Throws(_expectedException!);
         var sut = new PatientController(_patientManager.Object);
 
         // Act
-        var response = await sut.Get(1, 10);
+        var response = await sut.Get(1, 10, "test", "LastName", false);
         var statusCodeResult = response as StatusCodeResult;
         ObjectResult? objectResult = response as ObjectResult;
         bool? responseModel = objectResult?.Value as bool?;
 
         // Assert
         Assert.That(statusCodeResult, Is.Not.Null, "statusCodeResult != null");
-        Assert.That(statusCodeResult.StatusCode == 500, Is.True, "StatusCode == 500");
-        _patientManager.Verify(m => m.GetPatients(1, 10), Times.Once, "Expected method to be called once");
+        Assert.That(statusCodeResult.StatusCode, Is.EqualTo(500), "StatusCode == 500");
+        _patientManager.Verify(m => m.GetPatients(1, 10, "test", "LastName", false), Times.Once, "Expected method to be called once");
     }
 
     [Test(Description = "POST patient results in 200 Success")]
@@ -115,9 +114,12 @@ internal class PatientControllerTest
         OkObjectResult? okObjectResult = response as OkObjectResult;
         PatientDTO? responseModel = okObjectResult?.Value as PatientDTO;
 
-        // Assert
-        Assert.That(response, Is.Not.Null, "response != null");
-        Assert.That(responseModel, Is.Not.Null, "responseModel != null");
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(response, Is.Not.Null, "response != null");
+            Assert.That(responseModel, Is.Not.Null, "responseModel != null");
+        });
         _patientManager.Verify(m => m.UpsertPatient(_expectedPatientDTO), Times.Once, "Expected method to be called once");
     }
 
@@ -137,7 +139,7 @@ internal class PatientControllerTest
 
         // Assert
         Assert.That(statusCodeResult, Is.Not.Null, "statusCodeResult != null");
-        Assert.That(statusCodeResult.StatusCode == 500, Is.True, "StatusCode == 500");
+        Assert.That(statusCodeResult.StatusCode, Is.EqualTo(500), "StatusCode == 500");
         _patientManager.Verify(m => m.UpsertPatient(_expectedPatientDTO), Times.Once, "Expected method to be called once");
     }
 

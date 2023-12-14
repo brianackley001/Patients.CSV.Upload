@@ -78,7 +78,7 @@ IF  EXISTS(SELECT * FROM sys.databases WHERE name = 'Exercise')
 			ALTER DATABASE [Exercise] SET DELAYED_DURABILITY = DISABLED 
 			ALTER DATABASE [Exercise] SET ACCELERATED_DATABASE_RECOVERY = OFF
 			ALTER DATABASE [Exercise] SET QUERY_STORE = ON
-			ALTER DATABASE [Exercise] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_POLICY = (STALE_QUERY_THRESHOLD_DAYS = 30), DATA_FLUSH_INTERVAL_SECONDS = 900, INTERVAL_LENGTH_MINUTES = 60, MAX_STORAGE_SIZE_MB = 1000, QUERY_CAPTURE_MODE = AUTO, SIZE_BASED_CLEANUP_MODE = AUTO, MAX_PLANS_PER_QUERY = 200, WAIT_STATS_CAPTURE_MODE = ON)
+			ALTER DATABASE [Exercise] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_POLICY = (STALE_QUERY_THRESHOLD_DAYS = 30), DATA_FLUSH_INTERVAL_SECONDS = 900, INTERVAL_LENGTH_MINUTES = 60, MAX_STORAGE_SIZE_MB = 1000, QUERY_CAPTURE_MODE = AUTO, SIZE_BASED_CLEANUP_MODE = AUTO, MAX_PLANS_PER_QUERY = 200)
 			ALTER DATABASE [Exercise] SET  READ_WRITE 
 
 
@@ -240,80 +240,152 @@ BEGIN
 END
 GO
 
+
 ALTER PROCEDURE [dbo].[usp_GetPatients] 
 	@pageNum			INT = 1, 
 	@pageSize			INT = 10,
 	@sortBy				VARCHAR(50) = 'LastName',
 	@sortAsc			BIT = 1,
+	@searchTerm			VARCHAR(255) = '',
 	@collectionTotal	INT OUTPUT
 AS
 BEGIN
 	SET NOCOUNT ON;
-	DECLARE @pagedItemIds TABLE(id INT);
+	DECLARE @pagedItemIds TABLE(id INT)
+	DECLARE @searchCollectionTotal INT
 
+	-- SEARCH TERM PRESENT
+	IF(@searchTerm IS NOT NULL AND @searchTerm != '')
+	BEGIN
 		--	Select Paged Collection of matching Items
-    INSERT  INTO @pagedItemIds
-            SELECT	p.[PatientId]
-            FROM	[dbo].[Patients] p
-            ORDER	BY 
-                    CASE
-                        WHEN	@sortAsc != 1 THEN ''
-                        WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
-                    END ASC,
-                    CASE
-                        WHEN	@sortAsc != 1 THEN ''
-                        WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
-                    END ASC,
-                    CASE
-                        WHEN	@sortAsc != 1 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
-                    END ASC, 
-                    CASE
-                        WHEN	@sortAsc != 1 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated]
-                    END ASC,    
-                    CASE
-                        WHEN	@sortAsc != 1 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
-                    END ASC,
-                    CASE
-                        WHEN	@sortAsc != 1 THEN ''
-                        WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
-                    END ASC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN ''
-                        WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN ''
-                        WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated] 
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN cast(null as date)
-                        WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
-                    END DESC,
-                    CASE
-                        WHEN	@sortAsc != 0 THEN ''
-                        WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
-                    END DESC
-            OFFSET  (@pageNum - 1) * @pageSize ROWS
-            FETCH	NEXT @pageSize ROWS ONLY;
+		SELECT	@searchCollectionTotal = COUNT([PatientId]) FROM [dbo].[Patients] p
+		 WHERE	p.[LastName] LIKE '%'+ @searchTerm + '%' OR p.[FirstName] LIKE '%'+ @searchTerm + '%';
+
+		INSERT  INTO @pagedItemIds
+				SELECT	p.[PatientId]
+				  FROM	[dbo].[Patients] p
+				 WHERE	p.[LastName] LIKE '%'+ @searchTerm + '%' OR p.[FirstName] LIKE '%'+ @searchTerm + '%'
+				 ORDER	BY 
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
+						END ASC, 
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated]
+						END ASC,    
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated] 
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
+						END DESC
+				OFFSET  (@pageNum - 1) * @pageSize ROWS
+				FETCH	NEXT @pageSize ROWS ONLY;
+	END
+	ELSE
+	BEGIN
+		--  SEARCH TERM ABSENT
+		--	Select Paged Collection of matching Items
+		INSERT  INTO @pagedItemIds
+				SELECT	p.[PatientId]
+				FROM	[dbo].[Patients] p
+				ORDER	BY 
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
+						END ASC, 
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated]
+						END ASC,    
+						CASE
+							WHEN	@sortAsc != 1 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 1 THEN ''
+							WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
+						END ASC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy) = 'firstname' THEN [FirstName] 
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy)  = 'lastname' THEN [LastName]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'dateupdated' THEN [DateUpdated]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'datecreated' THEN [DateCreated] 
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN cast(null as date)
+							WHEN	LOWER(@sortBy)  = 'birthdate' THEN [BirthDate]
+						END DESC,
+						CASE
+							WHEN	@sortAsc != 0 THEN ''
+							WHEN	LOWER(@sortBy)  = 'genderdescription' THEN [GenderDescription] 
+						END DESC
+				OFFSET  (@pageNum - 1) * @pageSize ROWS
+				FETCH	NEXT @pageSize ROWS ONLY;
+		END
 
 	SELECT	p.[PatientId], p.[FirstName], p.[LastName], p.[BirthDate], p.[GenderDescription], p.[DateCreated], p.[DateUpdated], p.[IsActive]
 	  FROM	@pagedItemIds i INNER
 	  JOIN	[dbo].[Patients] p 
 	    ON	p.PatientId = i.id;
 
-	
-	SELECT @collectionTotal = COUNT([PatientId]) FROM [dbo].[Patients]
+	IF(@searchTerm IS NOT NULL AND @searchTerm != '')
+		SELECT @collectionTotal = @searchCollectionTotal
+	ELSE
+		SELECT @collectionTotal = COUNT([PatientId]) FROM [dbo].[Patients]
 END
 GO
 

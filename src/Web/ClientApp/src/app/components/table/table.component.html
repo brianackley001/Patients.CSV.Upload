@@ -1,0 +1,63 @@
+<div *ngIf="patientCollectionSize < 1 && !zeroSearchResults; else showItems">
+	<div class="card" style="margin-top: 45px;">
+		<div class="card-header bg-warning">
+			<h1>There are no patients currently in the system.</h1>
+		</div>
+		<div class="card-body">
+			<p class="card-text">Please use the "<b>Upload</b>" link to import patients into the system..</p>
+		</div>
+	</div>
+</div>
+
+<ng-template #showItems>
+	<br />
+	<form>
+		<div class="mb-3 row">
+			<label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Filter by name</label>
+			<div class="col-xs-3 col-sm-8 col-md-9">
+				<input id="table-complete-search" type="text" class="form-control form-control-sm" name="searchTerm"
+					[(ngModel)]="searchTerm" />
+					<button class="btn btn-sm btn-outline-primary mt-3" type="button" (click)="onSearch()">Filter</button>
+					<button *ngIf="searchTerm.length !== 0" class="btn btn-sm btn-outline-secondary mt-3" style="margin-left: 8px;" type="button" (click)="onClearSearchTerm()">Clear</button>
+			</div>
+		</div>
+
+		<table class="table table-striped"  *ngIf="!zeroSearchResults else elseBlock">
+			<thead>
+				<tr *ngIf="!zeroSearchResults  && filteringSearchSubmitted && searchTerm.length > 0">
+					<td  class="alert alert-info" role="alert" colspan="5">{{patientCollectionSize}} patient names matched "<i>{{searchTerm}}</i>"</td>
+				</tr>
+				<tr>
+					<th scope="col" sortable="firstName" (sort)="onSort($event)">First Name</th>
+					<th scope="col" sortable="lastName" (sort)="onSort($event)">Last Name</th>
+					<th scope="col">Birth Date</th>
+					<th scope="col">Gender</th>
+					<th scope="col">Edit</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr table-list-item *ngFor="let patient of patients" [patient]="patient" [ngbSearchTerm]="searchTerm" (savePatientEvent)="onUpdatePatient($event)"></tr>
+			</tbody>
+		</table>
+
+		<div class="d-flex justify-content-between p-2" *ngIf="!zeroSearchResults">
+			<ngb-pagination size="sm" [collectionSize]="patientCollectionSize" [(page)]="page" [pageSize]="pageSize" (pageChange)="onPageNavigate($event)">
+			</ngb-pagination>
+
+			<select class="form-select" style="width: auto" name="pageSize" [(ngModel)]="pageSize">
+				<option [ngValue]="2">2 items per page</option>
+				<option [ngValue]="5">5 items per page</option>
+				<option [ngValue]="10">10 items per page</option>
+				<option [ngValue]="25">25 items per page</option>
+			</select>
+		</div>
+		
+		<ng-template #elseBlock>
+			<div class="p-6">
+				<h3>No patient names matched <i>"{{searchTerm}}"</i></h3>
+				<br />
+				<i>Please try a new name search...</i>
+			</div>
+		</ng-template>
+	</form>
+</ng-template>

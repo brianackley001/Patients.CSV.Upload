@@ -16,17 +16,19 @@ public class PatientManager : IPatientManager
         _convertDTO = convertDTO;
     }
 
-    public async Task<PatientsDTO> GetPatients(int pageNumber, int pageSize)
+    public async Task<PatientsDTO> GetPatients(int pageNumber, int pageSize, string? searchTerm, string? sortBy, bool? sortAsc)
     {
+        // Allow for business logic conversion here between Web Layer DTO & Domain models
         try
         {
-            var patientsCollection = await _patientRepository.GetPatients(pageNumber, pageSize);
-            var patientsDto = new PatientsDTO(
-                patientsCollection.Collection, 
-                patientsCollection.PageNumber, 
-                patientsCollection.PageSize, 
-                patientsCollection.CollectionTotal);
-
+            var patientsCollection = await _patientRepository.GetPatients(pageNumber, pageSize, searchTerm, sortBy, sortAsc);
+            //var patientsDto = new PatientsDTO(
+            //    patientsCollection.Collection, 
+            //    patientsCollection.PageNumber, 
+            //    patientsCollection.PageSize, 
+            //    patientsCollection.CollectionTotal);
+            // Allow for business logic conversion here between Web Layer DTO & Domain models
+            var patientsDto = await _convertDTO.ConvertToPatientsDTO(patientsCollection);
             return patientsDto;
         }
         catch (Exception ex)
@@ -53,16 +55,8 @@ public class PatientManager : IPatientManager
     public async Task<PatientDTO> UpsertPatient(PatientDTO patientDTO)
     {
         // Allow for business logic conversion here between Web Layer DTO & Domain models
-        var patient = new Patient()
-        {
-            PatientId = patientDTO.Id,
-            FirstName = patientDTO.FirstName,
-            LastName = patientDTO.LastName,
-            DateCreated = (DateTime)patientDTO.DateCreated,   
-            DateUpdated = (DateTime)patientDTO.DateUpdated,
-            BirthDate = (DateTime)patientDTO.BirthDate,
-            GenderDescription = patientDTO.GenderDescription
-        };
+        var patient = await _convertDTO.ConvertToPatient(patientDTO);
+        
         try
         {
             var upsertResult = await _patientRepository.UpsertPatient(patient);

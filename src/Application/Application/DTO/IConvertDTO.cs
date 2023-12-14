@@ -4,5 +4,6 @@ namespace Application.DTO;
 public interface IConvertDTO
 {
      Task<PatientDTO> ConvertToPatientDTO(Patient patient);
-    //public PatientsDTO ConvertToPatientsDTO(PagedCollection<List<Patient>> patients);
+    Task<Patient> ConvertToPatient(PatientDTO patient);
+    Task<PatientsDTO> ConvertToPatientsDTO(PagedCollection<List<Patient>> patients);
 }

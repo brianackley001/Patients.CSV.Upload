@@ -21,7 +21,14 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
+    //CORS
+    var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+    builder.Services.AddCors(options => options.AddPolicy(name: myAllowSpecificOrigins,
+                          policy => policy.WithOrigins("https://localhost:4200",
+                                                  "http://localhost:4200")
 
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()));
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();
@@ -41,9 +48,13 @@ try
         app.UseSwaggerUI();
     }
 
+    app.UseCors(myAllowSpecificOrigins);
+
+
     app.UseHttpsRedirection();
 
     app.UseAuthorization();
+
 
     app.MapControllers();
 
