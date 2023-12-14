@@ -45,6 +45,7 @@ export class NgbdTableComplete implements OnInit {
   headers!: QueryList<NgbdSortableHeader>;
   patients: Patient[] = [];
   patientCollectionSize: number = 0;
+  paginationPageSize: number = 5;
 	zeroSearchResults: boolean = false;
 
   constructor(private patientApiService: PatientApiService) {}

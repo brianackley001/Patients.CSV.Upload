@@ -41,7 +41,7 @@
 		</table>
 
 		<div class="d-flex justify-content-between p-2" *ngIf="!zeroSearchResults">
-			<ngb-pagination size="sm" [collectionSize]="patientCollectionSize" [(page)]="page" [pageSize]="pageSize" (pageChange)="onPageNavigate($event)">
+			<ngb-pagination size="sm" [collectionSize]="patientCollectionSize" [(page)]="page" [maxSize]="5"  [rotate]="true" [boundaryLinks]="true" [pageSize]="pageSize" (pageChange)="onPageNavigate($event)">
 			</ngb-pagination>
 
 			<select class="form-select" style="width: auto" name="pageSize" [(ngModel)]="pageSize">
